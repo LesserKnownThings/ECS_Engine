@@ -18,7 +18,7 @@ enum class ShaderType
     post_process
 };
 
-struct ShaderProgram
+class ShaderProgram
 {
 public:
     ~ShaderProgram();
@@ -28,6 +28,7 @@ public:
     void InitializeShader(const std::string& vertexShaderPath, const std::string& fragmentShaderPath);
 
     bool IsValid() const { return id != 0; }
+    uint32 GetID() const { return id; }
 
     void Use();
     void SetBool(const std::string& name, bool value) const;
@@ -37,15 +38,15 @@ public:
     void SetVec4(const std::string& name, const Color& value) const;
     void SetMat4f(const std::string& name, const float* value) const;
 
-    void SetVec3Array(const std::string& name, const std::vector<Vector3>& data);
-
-    uint32 id;
+    void SetVec3Array(const std::string& name, const std::vector<Vector3>& data);   
 
 private:    
     void CheckCompilerError(uint32 shader, std::string type);
 
     const std::string defaultVertexShaderPath = "Data/DefaultShaders/meshShader.vert";
-    const std::string defaultFragmentShaderPath = "Data/DefaultShaders/meshShader.frag";    
+    const std::string defaultFragmentShaderPath = "Data/DefaultShaders/meshShader.frag";
+
+    uint32 id;
 };
 
 #endif

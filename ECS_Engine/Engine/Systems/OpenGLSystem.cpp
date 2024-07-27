@@ -1,5 +1,10 @@
 #include "OpenGLSystem.h"
+#include "../ShaderProgram.h"
+#include "../ImGUI/imgui.h"
+#include "../ImGUI/Backend/imgui_impl_sdl2.h"
+#include "../ImGUI/Backend/imgui_impl_opengl3.h"
 #include "assert.h"
+#include "CameraSystem.h"
 #include "glew.h"
 #include "InputSystem.h"
 #include "MeshLoadingSystem.h"
@@ -100,7 +105,13 @@ bool OpenGLSystem::InitializeSystem(int32 inWidth, int32 inHeight)
 	glViewport(0, 0, width, height);
 	glScissor(0, 0, width, height);
 
-	defaultShader.InitializeShader();
+	defaultShader = new ShaderProgram();
+	defaultShader->InitializeShader();
+	defaultShader->Use();
+
+	defaultCamera = new CameraSystem(defaultShader, width, height);
+
+	SetupUI();
 
 	return true;
 }
@@ -112,17 +123,33 @@ void OpenGLSystem::PreRender()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
+void OpenGLSystem::RenderUI()
+{
+	ImGui_ImplOpenGL3_NewFrame();
+	ImGui_ImplSDL2_NewFrame();
+	ImGui::NewFrame();
+
+	//Place to render windows
+	ImGui::ShowDemoWindow();
+
+	ImGui::Render();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
 void OpenGLSystem::Render()
 {
-	defaultShader.Use();
+	PreRender();	
 
-	for (uint32 i = 0; i < renderComponentData.instancesCount; ++i)
+	/*for (uint32 i = 0; i < renderComponentData.instancesCount; ++i)
 	{
 		glBindVertexArray(renderComponentData.vao[i]);
 		glDrawElements(GL_TRIANGLES, renderComponentData.elementCount[i], GL_UNSIGNED_INT, 0);
-	}
+	}*/
 
 	glBindVertexArray(0);
+
+	RenderUI();
+	PostRender();
 }
 
 void OpenGLSystem::PostRender()
@@ -130,7 +157,7 @@ void OpenGLSystem::PostRender()
 	SDL_GL_SwapWindow(window);
 }
 
-uint32 OpenGLSystem::CreateComponent(const Entity& e)
+uint32 OpenGLSystem::CreateComponent(const Entity& e, void* componentData)
 {
 	uint32 size = static_cast<uint32>(instances.size());
 
@@ -262,4 +289,29 @@ void OpenGLSystem::HandleWindowResized()
 	glScissor(0, 0, width, height);
 
 	InputSystem::Get().onWindowResizedParams.Invoke(width, height);
+}
+
+void OpenGLSystem::SetupUI()
+{
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+	io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+	io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
+
+	io.DeltaTime = 0.05f;
+
+	// Setup Dear ImGui style
+	//ImGui::StyleColorsClassic();
+	ImGui::StyleColorsLight();
+
+	const char* glsl_version = "#version 330 core";
+
+	// Setup Platform/Renderer backends
+	ImGui_ImplSDL2_InitForOpenGL(window, glContext);
+	ImGui_ImplOpenGL3_Init(glsl_version);
 }

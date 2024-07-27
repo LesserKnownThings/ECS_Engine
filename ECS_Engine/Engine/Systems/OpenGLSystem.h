@@ -2,14 +2,19 @@
 
 #include "../Entity.h"
 #include "SDL_video.h"
-#include "../ShaderProgram.h"
+#include "SystemBase.h"
+#include "SystemManager.h"
+#include "ResourceManagerSystem.h"
 
 #include <string>
 #include <unordered_map>
 
+class CameraSystem;
+class ShaderProgram;
+
 struct DrawData;
 
-class OpenGLSystem
+class OpenGLSystem : public SystemBase
 {
 	struct RenderComponentData
 	{
@@ -34,13 +39,15 @@ public:
 
 	bool InitializeSystem(int32 inWidth, int32 inHeight);
 
-	ShaderProgram& GetDefaultShader() { return defaultShader; }
+	ShaderProgram* GetDefaultShader() const { return defaultShader; }
 
 	void PreRender();
-	void Render();
+	void RenderUI();	
 	void PostRender();
 
-	uint32 CreateComponent(const Entity& e);
+	virtual uint32 CreateComponent(const Entity& e, void* componentData) override;
+	virtual void Render() override;
+
 	bool GetComponent(const Entity& e, uint32& outComponent) const;
 
 	void SetComponentMesh(const std::string& meshPath, const Entity& e);
@@ -51,6 +58,7 @@ private:
 	void LoadMeshData(uint32 componentIndex, const DrawData& tempData);
 
 	void HandleWindowResized();
+	void SetupUI();
 
 	SDL_Window* window = nullptr;
 	SDL_GLContext glContext = nullptr;
@@ -58,7 +66,11 @@ private:
 	int32 width = 0;
 	int32 height = 0;
 
-	ShaderProgram defaultShader;
+	CameraSystem* defaultCamera = nullptr;
+	ShaderProgram* defaultShader = nullptr;
 
 	std::unordered_map<Entity, uint32> instances;
 };
+
+REGISTER_SYSTEM(OpenGLSystem)
+REGISTER_CREATION_FUNCTION(OpenGLSystem, ComponentType::RenderComponent)

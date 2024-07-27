@@ -12,7 +12,11 @@ class Engine
 {
 public:
 	~Engine();
-	Engine();	
+	Engine();
+
+	static const Engine* Get();
+
+	float GetDeltaTime() const { return deltaTime; }
 
 private:
 	void RunEngine();	
@@ -24,13 +28,12 @@ private:
 	void InitializeMisc();
 
 	void HandleInput();
-	void HandleRendering();
+	void HandleSystems();
 
 	void HandleCloseEngine();
 
 	bool isRunning = false;
 	float deltaTime = 0.0f;
 
-	//**********Systems
-	OpenGLSystem* openGLSystem = nullptr;
+	static const Engine* instance;
 };

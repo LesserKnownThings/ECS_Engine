@@ -1,8 +1,8 @@
 #include "Engine.h"
 #include "EntityManager.h"
 #include "SDL.h"
+#include "ShaderProgram.h"
 #include "Systems/InputSystem.h"
-#include "Systems/MeshLoadingSystem.h"
 #include "Systems/OpenGLSystem.h"
 
 #include <iostream>
@@ -23,44 +23,51 @@ namespace
 	}
 }
 
+const Engine* Engine::instance = nullptr;
+
 Engine::~Engine()
 {
-	delete openGLSystem;
-	openGLSystem = nullptr;
+
 }
 
 Engine::Engine()
 {
+	instance = this;
+
 	InitializeEngine();
 }
 
-glm::mat4 pos = glm::mat4(1.0f);
+const Engine* Engine::Get()
+{
+	return instance;
+}
 
 void Engine::RunEngine()
 {
-	uint32 previousFrameTime = SDL_GetTicks();
+	uint32 currentTicks = SDL_GetTicks();
 
 	while (isRunning)
 	{
-		uint32 currentTime = SDL_GetTicks();
-		uint32 frameDuration = currentTime - previousFrameTime;
+		uint32 newTicks = SDL_GetTicks();
 
-		previousFrameTime = currentTime;
-
-		deltaTime = frameDuration / 1000.0f;
+		deltaTime = (newTicks - currentTicks) / 1000.0f;
 
 		if (deltaTime > MAX_DELTA)
 			deltaTime = MAX_DELTA;
 
+		currentTicks = newTicks;
+
+		uint32 frameStart = SDL_GetTicks();
+
 		HandleInput();
-		HandleRendering();
+		HandleSystems();
 
-		ShaderProgram& sp = openGLSystem->GetDefaultShader();
-		
-		pos = glm::rotate(pos, TO_RADIANS(1.f), glm::vec3(0.0f, 1.0f, 0.0f));
-		sp.SetMat4f("model", DATA(pos));
+		uint32 frameDuration = SDL_GetTicks() - frameStart;
 
-		SDL_Delay(FRAME_RATE);
+		if (FRAME_RATE > frameDuration)
+		{
+			SDL_Delay(FRAME_RATE);
+		}
 	}
 }
 
@@ -100,7 +107,7 @@ bool Engine::InitializeSDL()
 
 bool Engine::InitializeOpenGL()
 {
-	if (openGLSystem = new OpenGLSystem())
+	if (OpenGLSystem* openGLSystem = SystemManager::Get().GetSystem<OpenGLSystem>(typeid(OpenGLSystem)))
 	{
 		return openGLSystem->InitializeSystem(640, 480);
 	}
@@ -108,38 +115,24 @@ bool Engine::InitializeOpenGL()
 	return false;
 }
 
+#include "Systems/ResourceManagerSystem.h"
+
 void Engine::InitializeMisc()
 {
 	InputSystem::Get().onCloseAppDelegate.Bind(this, &Engine::HandleCloseEngine);
 
-	MeshLoadingSystem& mls = MeshLoadingSystem::Get();
+	uint16 compTypes = (uint16)ComponentType::TransformComponent | (uint16)ComponentType::RenderComponent;
 
-	const std::string coolMeshPath = "Data/CoolMesh.obj";
+	int32 componentsCount = 3;
 
-	mls.ImportMesh(coolMeshPath);
+	ComponentData* components = new ComponentData[componentsCount];	
 	
-	Entity e = EntityManager::Get().CreateEntity();
+	components[0].type = ComponentType::TransformComponent;
+	components[1].type = ComponentType::RenderComponent;
+	components[2].type = ComponentType::PhysicsComponent;
 
-	uint32 comp = openGLSystem->CreateComponent(e);
-	openGLSystem->SetComponentMesh(coolMeshPath, e);
-
-	ShaderProgram& sp = openGLSystem->GetDefaultShader();
-
-	sp.Use();
-
-	Mat4 projection = glm::perspective(TO_RADIANS(45.0f), (640.0f / 480.0f), 0.1f, 5000.0f);
-
-	Mat4 view = glm::lookAt(
-		Vector3(0.0f, 0.0f, 100.0f),
-		Vector3(0.0f) + Vector3(0.0f, 0.0f, 1.0f),
-		Vector3(0.0f, 1.0f, 0.0f)
-	);
-
-	Mat4 model = Mat4(1.0f);
-
-	sp.SetMat4f("projection", DATA(projection));
-	sp.SetMat4f("view", DATA(view));
-	sp.SetMat4f("model", DATA(model));
+	EntityResource es(10000, componentsCount, compTypes, components);
+	ResourceManagerSystem::Get().SpawnEntities(es);
 }
 
 void Engine::HandleInput()
@@ -147,11 +140,13 @@ void Engine::HandleInput()
 	InputSystem::Get().ProcessInput();
 }
 
-void Engine::HandleRendering()
+void Engine::HandleSystems()
 {
-	openGLSystem->PreRender();
-	openGLSystem->Render();
-	openGLSystem->PostRender();
+	for (const auto& it : SystemManager::Get().GetAllSystems())
+	{
+		it.second->Render(); //Rendering before process because of physics
+		it.second->Process(deltaTime);		
+	}
 }
 
 void Engine::HandleCloseEngine()
