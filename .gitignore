@@ -34,7 +34,18 @@
 *.filters
 *.vcxproj
 
+*.cmake
+*.vcxproj
+*.vcxproj.user
+*.vcxproj.filters
+
 /x64
 /.vs
 /.git
 /ECS_Engine/x64
+/ECS_Engine/CMakeFiles
+/ECS_Engine/Debug
+/ECS_Engine/ECS_Engine.dir
+
+/ECS_Engine/CMakeCache.txt
+/ECS_Engine/cmake_install.txt

@@ -1,6 +1,0 @@
-TransformComponentMetdata
-{
-Vector3 position;
-Vector3 eulerAngles;
-Vector3 scale;
-}
