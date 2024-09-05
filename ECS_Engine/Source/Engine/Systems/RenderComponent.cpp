@@ -1,5 +1,7 @@
 #include "RenderComponent.h"
 
+#include <cstring>
+
 namespace LKT
 {
 	RenderComponentResource::RenderComponentResource(int32_t instances, uint32_t* textureID)

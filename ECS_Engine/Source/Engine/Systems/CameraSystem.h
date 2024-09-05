@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Math/Numerals.h"
-#include "Math/Transforms.h"
 #include "glm/glm.hpp"
 
 struct SDL_MouseButtonEvent;
@@ -29,7 +27,7 @@ namespace LKT
 	{
 	public:
 		~CameraSystem() = default;
-		CameraSystem(int32 inWidth, int32 inHeight);
+		CameraSystem(int32_t inWidth, int32_t inHeight);
 
 		void Uninitialize();
 
@@ -43,13 +41,13 @@ namespace LKT
 		void SetOrthographicSize(float inOrthographicSize);
 		void SetCameraZ(float inCameraZ);
 
-		void SetPosition(const Vector3& newPosition);
-		void SetRotation(const Vector3& eulerAngles);
+		void SetPosition(const glm::vec3& newPosition);
+		void SetRotation(const glm::vec3& eulerAngles);
 
-		void Move(const Vector3& direction);
-		void Rotate(const Vector3& axis);
+		void Move(const glm::vec3& direction);
+		void Rotate(const glm::vec3& axis);
 
-		const Vector3& GetRightVector() const { return right; }
+		const glm::vec3& GetRightVector() const { return right; }
 
 	private:
 		void HandleTypeChanged();
@@ -71,33 +69,33 @@ namespace LKT
 		float nearView = 5.0f;
 		float farView = 6000.0f;
 
-		Vector3 forward = Vector3(0.0f, 0.0f, -1.0f);
-		Vector3 right = Vector3(1.0f, 0.0f, 0.0f);
-		Vector3 up = Vector3(0.0f, 1.0f, 0.0f);
-		Vector3 worldUp = Vector3(0.0f, 1.0f, 0.0f);
+		glm::vec3 forward = glm::vec3(0.0f, 0.0f, -1.0f);
+		glm::vec3 right = glm::vec3(1.0f, 0.0f, 0.0f);
+		glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+		glm::vec3 worldUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
 		//***Orthographic settings
 		float ortographicSize = 10.0f;
 		float cameraZ = 1000.0f;
 
 		//***Common settings
-		int32 width = 0;
-		int32 height = 0;
+		int32_t width = 0;
+		int32_t height = 0;
 
-		Vector3 position = Vector3(0.0f, 0.0, 50.0f);
+		glm::vec3 position = glm::vec3(0.0f, 0.0, 50.0f);
 
 		float pitch = 0.0f;
 		float yaw = 0.0f;
 		float roll = 0.0f;
 
-		Mat4 projection = Mat4(1.0f);
-		Mat4 view = Mat4(1.0f);
+		glm::mat4 projection = glm::mat4(1.0f);
+		glm::mat4 view = glm::mat4(1.0f);
 
 		uint32_t ubo;
 
 		uint8_t movementType = 0;
 
-		float movementSpeed = 50.0f;
+		float movementSpeed = 15.0f;
 		float rotationSpeed = 10.0f;
 	};
 }

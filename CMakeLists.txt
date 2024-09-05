@@ -1,42 +1,73 @@
 cmake_minimum_required(VERSION 3.20)
 project(ECS_Engine)
 
+set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Editor" "Game")
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
-file(GLOB_RECURSE SOURCES "${CMAKE_SOURCE_DIR}/**/Source/*.cpp")
-file(GLOB_RECURSE HEADERS "${CMAKE_SOURCE_DIR}/**/Source/*.h")
+set(GLOBAL_SOURCES "")
+set(GLOBAL_HEADERS "")
 
-# These are added manually because they're not part of the auto build
-include_directories(${CMAKE_SOURCE_DIR}/ECS_Engine/Source/Engine/imgui)
-include_directories(${CMAKE_SOURCE_DIR}/ECS_Engine/GlobalIncludes)
+if(CMAKE_BUILD_TYPE STREQUAL "Editor")
+	add_compile_definitions(EDITOR_ONLY=1)
+	set(CMAKE_C_COMPILER "clang")
+	set(CMAKE_CXX_COMPILER "clang++")
+	set(CMAKE_CXX_FLAGS "-std=c++20 -g")
+	file(GLOB_RECURSE EDITOR_SOURCES "${CMAKE_SOURCE_DIR}/**/Editor/*.cpp")
+	list(APPEND GLOBAL_SOURCES ${EDITOR_SOURCES})
+	include_directories(${CMAKE_SOURCE_DIR}/ECS_Engine/Editor)
+elseif(CMAKE_BUILD_TYPE STREQUAL "Game")
+	add_compile_definitions(EDITOR_ONLY=0)
+	file(GLOB_RECURSE EDITOR_HEADERS "${CMAKE_SOURCE_DIR}/**/Editor/*.h")
+	list(APPEND GLOBAL_HEADERS ${EDITOR_HEADERS})
+endif()
+
+message(STATUS "includes: ${GLOBAL_SOURCES}")
+
+file(GLOB_RECURSE SOURCES "${CMAKE_SOURCE_DIR}/**/Source/Engine/*.cpp")
+list(APPEND GLOBAL_SOURCES ${SOURCES})
+file(GLOB_RECURSE HEADERS "${CMAKE_SOURCE_DIR}/**/Source/Engine/*.h")
+list(APPEND GLOBAL_HEADERS ${HEADERS})
+
+include_directories(${CMAKE_SOURCE_DIR}/Include)
 include_directories(${CMAKE_SOURCE_DIR}/ECS_Engine/Source/Engine)
 
-link_directories(${CMAKE_SOURCE_DIR}/Libs)
+file(GLOB DIRECTORY_LIST LIST_DIRECTORIES TRUE ${CMAKE_SOURCE_DIR}/Include/*)
 
-add_executable(ECS_Engine ${SOURCES} ${HEADERS})
+set(INCLUDE_DIRS "")
 
-file(GLOB_RECURSE ALL_HEADERS LIST_DIRECTORIES FALSE ${CMAKE_SOURCE_DIR}/Include/*)
-
-set(HEADER_DIRS "")
-
-foreach(header_file IN LISTS ALL_HEADERS)
-    get_filename_component(header_dir ${header_file} DIRECTORY)
-    list(FIND HEADER_DIRS ${header_dir} dir_index)
-    if(dir_index EQUAL -1)
-        list(APPEND HEADER_DIRS ${header_dir})
-    endif()
+foreach(dir_path IN LISTS DIRECTORY_LIST)
+	if(IS_DIRECTORY ${dir_path})
+		list(APPEND INCLUDE_DIRS ${dir_path})
+   	endif()
 endforeach()
 
-include_directories(${HEADER_DIRS})
+add_definitions(-DGLEW_NO_GLU)
 
-message(STATUS "Library directories: ${CMAKE_SOURCE_DIR}/Libs")
+add_executable(ECS_Engine ${GLOBAL_SOURCES} ${GLOBAL_HEADERS})
 
-file(GLOB_RECURSE LIBRARY_FILES ${CMAKE_SOURCE_DIR}/Libs/*.a ${CMAKE_SOURCE_DIR}/Libs/*.lib ${CMAKE_SOURCE_DIR}/Libs/*.so ${CMAKE_SOURCE_DIR}/Libs/*.dll)
+if(UNIX)	
+	find_library(UUID_LIBRARIES NAMES uuid)
+	target_link_libraries(ECS_Engine PRIVATE ${UUID_LIBRARIES})
+endif()
+
+set(LIBRARY_FILES "")
+
+if(UNIX)
+	file(GLOB_RECURSE LIBRARY_FILES ${CMAKE_SOURCE_DIR}/Linking/*.so.*)
+elseif(WIN32)
+	file(GLOB_RECURSE LIBRARY_FILES ${CMAKE_SOURCE_DIR}/Linking/*.lib ${CMAKE_SOURCE_DIR}/Linking/*.dll)
+endif()
+
+message(STATUS "Lib files ==> ${LIBRARY_FILES}")
 
 foreach(lib_file ${LIBRARY_FILES})
-    get_filename_component(lib_name ${lib_file} NAME_WE)
-    target_link_libraries(ECS_Engine PRIVATE ${lib_name})
+if(WIN32)
+	get_filename_component(lib_name ${lib_file} NAME_WE)
+	target_link_libraries(ECS_Engine PRIVATE ${lib_name})
+elseif(UNIX)
+	target_link_libraries(ECS_Engine PRIVATE ${lib_file})
+endif()
 endforeach()
-
-target_link_libraries(ECS_Engine PRIVATE opengl32)

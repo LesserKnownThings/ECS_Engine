@@ -1,6 +1,7 @@
 #include "BuddyAllocator.h"
 
 #include <cmath>
+#include <cstring>
 #include <string>
 
 BuddyAllocator::~BuddyAllocator()
@@ -8,22 +9,22 @@ BuddyAllocator::~BuddyAllocator()
 	delete[] memory;
 }
 
-BuddyAllocator::BuddyAllocator(uint64 size)
+BuddyAllocator::BuddyAllocator(uint64_t size)
 {
-	totalSize = static_cast<uint64>(1) << static_cast<uint64>(std::ceil(std::log2(size)));
+	totalSize = static_cast<uint64_t>(1) << static_cast<uint64_t>(std::ceil(std::log2(size)));
 	memory = new char[totalSize];
-	memset(freeList, 0, sizeof(freeList));
+	std::memset(freeList, 0, sizeof(freeList));
 
-	int32 levels = std::log2(totalSize) + 1;
+	int32_t levels = std::log2(totalSize) + 1;
 	freeList[levels - 1] = memory;
 }
 
-void* BuddyAllocator::Allocate(uint64 size)
+void* BuddyAllocator::Allocate(uint64_t size)
 {
-	uint64 blockSize = static_cast<uint64>(1) << static_cast<uint64>(std::ceil(std::log2(size)));
-	int32 level = std::log2(blockSize);
+	uint64_t blockSize = static_cast<uint64_t>(1) << static_cast<uint64_t>(std::ceil(std::log2(size)));
+	int32_t level = std::log2(blockSize);
 
-	for (int32 i = level; i < MAX_LEVELS; ++i)
+	for (int32_t i = level; i < MAX_LEVELS; ++i)
 	{
 		if (freeList[i])
 		{
@@ -33,7 +34,7 @@ void* BuddyAllocator::Allocate(uint64 size)
 			while (i > level)
 			{
 				--i;
-				void* buddy = static_cast<char*>(block) + (static_cast<int32>(1) << i);
+				void* buddy = static_cast<char*>(block) + (static_cast<int32_t>(1) << i);
 				*reinterpret_cast<void**>(buddy) = freeList[i];
 				freeList[i] = buddy;
 			}
@@ -45,10 +46,10 @@ void* BuddyAllocator::Allocate(uint64 size)
 	return nullptr;
 }
 
-void BuddyAllocator::Deallocate(void* ptr, uint64 size)
+void BuddyAllocator::Deallocate(void* ptr, uint64_t size)
 {
-	uint64 blockSize = static_cast<uint64>(1) << static_cast<uint64>(std::ceil(std::log2(size)));
-	int32 level = std::log2(blockSize);
+	uint64_t blockSize = static_cast<uint64_t>(1) << static_cast<uint64_t>(std::ceil(std::log2(size)));
+	int32_t level = std::log2(blockSize);
 
 	while (level < MAX_LEVELS - 1)
 	{
@@ -69,12 +70,12 @@ void BuddyAllocator::Deallocate(void* ptr, uint64 size)
 	freeList[level] = ptr;
 }
 
-void* BuddyAllocator::GetBuddy(void* ptr, uint64 size)
+void* BuddyAllocator::GetBuddy(void* ptr, uint64_t size)
 {
-	return reinterpret_cast<void*>(reinterpret_cast<uint64>(ptr) ^ size);
+	return reinterpret_cast<void*>(reinterpret_cast<uint64_t>(ptr) ^ size);
 }
 
-void BuddyAllocator::RemoveFromFreeList(void* ptr, int32 level)
+void BuddyAllocator::RemoveFromFreeList(void* ptr, int32_t level)
 {
 	void** current = &freeList[level];
 
@@ -90,7 +91,7 @@ void BuddyAllocator::RemoveFromFreeList(void* ptr, int32 level)
 	}
 }
 
-bool BuddyAllocator::IsFree(void* buddy, int32 level) const
+bool BuddyAllocator::IsFree(void* buddy, int32_t level) const
 {
 	void* current = freeList[level];
 

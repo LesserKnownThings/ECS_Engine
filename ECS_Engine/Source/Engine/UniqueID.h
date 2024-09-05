@@ -1,10 +1,9 @@
 #pragma once
 
-#include "Math/Numerals.h"
-
 #include <array>
 #include <functional>
 #include <cstddef>
+#include <cstdint>
 #include <unordered_set>
 #include <string>
 

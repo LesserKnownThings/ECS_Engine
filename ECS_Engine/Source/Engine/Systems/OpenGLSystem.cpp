@@ -1,19 +1,20 @@
 #include "OpenGLSystem.h"
-#include "imgui.h"
-#include "backends/imgui_impl_sdl2.h"
-#include "backends/imgui_impl_opengl3.h"
-#include "assert.h"
+#include "imgui/imgui.h"
+#include "imgui/backends/imgui_impl_sdl3.h"
+#include "imgui/backends/imgui_impl_opengl3.h"
 #include "CameraSystem.h"
-#include "glew.h"
+#include "glew/glew.h"
 #include "InputSystem/InputManagerSystem.h"
 #include "MeshLoadingSystem.h"
 #include "ParticleSystem/ParticleSystem.h"
-#include "SDL.h"
+#include "SDL/SDL.h"
 #include "ShaderSystem/ShaderProgram.h"
 #include "ShaderSystem/ShaderManager.h"
 #include "TaskManagerSystem.h"
 #include "TransformSystem.h"
 
+#include <cassert>
+#include <cstring>
 #include <iostream>
 
 namespace LKT
@@ -22,7 +23,7 @@ namespace LKT
 	{
 		static void CheckSDLError(int32_t line)
 		{
-			const char* error = SDL_GetError();
+			const char *error = SDL_GetError();
 			if (*error != '\0')
 			{
 				printf("SDL Error: %s\n", error);
@@ -40,7 +41,7 @@ namespace LKT
 		InputManagerSystem::Get().onWindowResized.Bind(this, &OpenGLSystem::HandleWindowResized);
 	}
 
-	OpenGLSystem& OpenGLSystem::Get()
+	OpenGLSystem &OpenGLSystem::Get()
 	{
 		static OpenGLSystem instance;
 		return instance;
@@ -52,7 +53,7 @@ namespace LKT
 		height = inHeight;
 
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
-		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+		SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
 
 		SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
@@ -61,13 +62,13 @@ namespace LKT
 		SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 		SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 1);
 
-		window = SDL_CreateWindow("ECS Engine", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+		window = SDL_CreateWindow("ECS Engine", width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
 		LKT::CheckSDLError(__LINE__);
 
 		glContext = SDL_GL_CreateContext(window);
 		LKT::CheckSDLError(__LINE__);
 
-		if (SDL_GL_MakeCurrent(window, glContext) != 0)
+		if (SDL_GL_MakeCurrent(window, glContext) == SDL_FALSE)
 		{
 			std::cerr << "Failed to make OpenGL context current: " << SDL_GetError() << std::endl;
 			return false;
@@ -82,7 +83,7 @@ namespace LKT
 			return false;
 		}
 
-		if (SDL_GL_SetSwapInterval(1) != 0)
+		if (SDL_GL_SetSwapInterval(1) == SDL_FALSE)
 		{
 			printf("Warning: Unable to set VSync! SDL Error: %s\n", SDL_GetError());
 			return false;
@@ -100,7 +101,7 @@ namespace LKT
 		glEnable(GL_DEBUG_OUTPUT);
 
 		glViewport(0, 0, width, height);
-		glScissor(0, 0, width, height);		
+		glScissor(0, 0, width, height);
 
 		SetupUI();
 
@@ -113,7 +114,7 @@ namespace LKT
 	{
 		if (glContext != nullptr)
 		{
-			SDL_GL_DeleteContext(glContext);
+			SDL_GL_DestroyContext(glContext);
 			glContext = nullptr;
 		}
 
@@ -143,7 +144,7 @@ namespace LKT
 	void OpenGLSystem::PreRenderUI()
 	{
 		ImGui_ImplOpenGL3_NewFrame();
-		ImGui_ImplSDL2_NewFrame();
+		ImGui_ImplSDL3_NewFrame();
 		ImGui::NewFrame();
 	}
 
@@ -154,7 +155,7 @@ namespace LKT
 
 		ShaderManager::Get().ActivateShader(defaultShaderName);
 
-		for (const auto& kvp : instances)
+		for (const auto &kvp : instances)
 		{
 			glActiveTexture(GL_TEXTURE0);
 			glBindTexture(GL_TEXTURE_2D, renderComponent.textureID[kvp.second]);
@@ -187,7 +188,7 @@ namespace LKT
 		SDL_GL_SwapWindow(window);
 	}
 
-	uint32_t OpenGLSystem::CreateComponent(const Entity& e, void* componentData)
+	uint32_t OpenGLSystem::CreateComponent(const Entity &e, void *componentData)
 	{
 		int32_t size = instances.size();
 
@@ -209,7 +210,7 @@ namespace LKT
 		return size;
 	}
 
-	void OpenGLSystem::CreateComponents(int32_t entityCount, Entity* entities, void* componentData)
+	void OpenGLSystem::CreateComponents(int32_t entityCount, Entity *entities, void *componentData)
 	{
 		const uint32_t startingIndex = instances.size();
 
@@ -227,7 +228,7 @@ namespace LKT
 
 		const uint32_t size = sizeof(uint32_t) * entityCount;
 
-		uint32_t* modBuffer = static_cast<uint32_t*>(componentData);
+		uint32_t *modBuffer = static_cast<uint32_t *>(componentData);
 
 		memcpy(&renderComponent.entity[startingIndex], entities, sizeof(Entity) * entityCount);
 
@@ -238,7 +239,7 @@ namespace LKT
 		memcpy(&renderComponent.textureID[startingIndex], modBuffer + entityCount * 4, size);
 	}
 
-	bool OpenGLSystem::GetComponent(const Entity& e, uint32_t& outComponent) const
+	bool OpenGLSystem::GetComponent(const Entity &e, uint32_t &outComponent) const
 	{
 		const auto it = instances.find(e);
 
@@ -251,7 +252,7 @@ namespace LKT
 		return false;
 	}
 
-	void OpenGLSystem::SetComponentMesh(const std::string& meshPath, const Entity& e)
+	void OpenGLSystem::SetComponentMesh(const std::string &meshPath, const Entity &e)
 	{
 		const auto it = instances.find(e);
 
@@ -259,10 +260,8 @@ namespace LKT
 		{
 			const uint32_t componentIndex = it->second;
 
-			if (!MeshLoadingSystem::Get().GetMeshData(meshPath, [this, componentIndex](const DrawData& tempData)
-				{
-					LoadMeshData(componentIndex, tempData);
-				}))
+			if (!MeshLoadingSystem::Get().GetMeshData(meshPath, [this, componentIndex](const DrawData &tempData)
+													  { LoadMeshData(componentIndex, tempData); }))
 			{
 				printf("Error, could not load mesh %s", meshPath.data());
 			}
@@ -271,7 +270,7 @@ namespace LKT
 
 	void OpenGLSystem::AllocateMemory(int32_t size)
 	{
-		assert(size > renderComponent.allocatedInstances);
+		assert(("New allocated size needs to be bigger than old allocated size!", size > renderComponent.allocatedInstances));
 
 		RenderComponent newComponent;
 		const int32_t sizeToAllocate = size * (sizeof(uint32_t) * 6);
@@ -281,8 +280,8 @@ namespace LKT
 		newComponent.instancesCount = renderComponent.instancesCount;
 		newComponent.allocatedInstances = size;
 
-		newComponent.entity = (Entity*)(newComponent.buffer);
-		newComponent.vao = (uint32_t*)(size + newComponent.entity);
+		newComponent.entity = (Entity *)(newComponent.buffer);
+		newComponent.vao = (uint32_t *)(size + newComponent.entity);
 		newComponent.vbo = size + newComponent.vao;
 		newComponent.ebo = size + newComponent.vbo;
 		newComponent.elementCount = size + newComponent.ebo;
@@ -299,7 +298,7 @@ namespace LKT
 		renderComponent = newComponent;
 	}
 
-	void OpenGLSystem::LoadMeshData(uint32_t componentIndex, const DrawData& tempData)
+	void OpenGLSystem::LoadMeshData(uint32_t componentIndex, const DrawData &tempData)
 	{
 		renderComponent.elementCount[componentIndex] = tempData.indicesCount;
 
@@ -323,17 +322,17 @@ namespace LKT
 		uint32_t offset = 0;
 
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)(uintptr_t)offset);		
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void *)(uintptr_t)offset);
 
 		offset += sizeof(glm::vec3) * tempData.vertexCount;
 
 		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)(uintptr_t)offset);		
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void *)(uintptr_t)offset);
 
 		offset += sizeof(glm::vec3) * tempData.vertexCount;
 
 		glEnableVertexAttribArray(2);
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (void*)(uintptr_t)offset);		
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (void *)(uintptr_t)offset);
 
 		glBindVertexArray(0);
 	}
@@ -357,23 +356,32 @@ namespace LKT
 		IMGUI_CHECKVERSION();
 		ImGui::CreateContext();
 
-		ImGuiIO& io = ImGui::GetIO(); (void)io;
-		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+		ImGuiIO &io = ImGui::GetIO();
+		(void)io;
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
+
+		ImFont *customFont = io.Fonts->AddFontFromFileTTF("Data/Fonts/UbuntuMono-Bold.ttf", 18);
+		io.FontDefault = customFont;
+
+		/* Not too sure I want to support this
+				io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
+				io.BackendFlags |= ImGuiBackendFlags_PlatformHasViewports;
+				io.BackendFlags |= ImGuiBackendFlags_PlatformHasViewports;
+		*/
 		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		io.ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;
 
 		io.DeltaTime = 0.05f;
 
 		// Setup Dear ImGui style
-		//ImGui::StyleColorsClassic();
+		// ImGui::StyleColorsClassic();
 		ImGui::StyleColorsLight();
 
-		const char* glsl_version = "#version 330 core";
+		const char *glsl_version = "#version 430 core";
 
 		// Setup Platform/Renderer backends
-		ImGui_ImplSDL2_InitForOpenGL(window, glContext);
+		ImGui_ImplSDL3_InitForOpenGL(window, glContext);
 		ImGui_ImplOpenGL3_Init(glsl_version);
 	}
 }

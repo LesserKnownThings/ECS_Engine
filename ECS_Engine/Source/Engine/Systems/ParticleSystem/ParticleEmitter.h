@@ -1,10 +1,11 @@
 #pragma once
 
 #include "Color.h"
-#include <glm/glm.hpp>
+#include "glm/glm.hpp"
 #include "Object.h"
 #include "ParticleShapeData.h"
 #include "ParticleSimType.h"
+#include "Systems/AssetManager/ISerializable.h"
 
 #include <cstdint>
 #include <functional>
@@ -38,8 +39,6 @@ namespace LKT
 	{
 		Color initialColor = Color::white;
 
-		EParticleSimType simType = CPU;
-
 		uint32_t rate = 10;
 		uint32_t maxAmount = 1500;
 
@@ -47,7 +46,9 @@ namespace LKT
 		float lifetime = 5.0f;
 
 		bool useGravity = false;
-		bool isLocal = false;		
+		bool isLocal = false;
+
+		EParticleSimType simType = CPU;
 	};
 
 	struct ParticleDataCPU
@@ -55,20 +56,23 @@ namespace LKT
 		int32_t instancesCount = 0;
 		int32_t allocatedCount = 0;
 
-		void* buffer = nullptr;
+		void *buffer = nullptr;
 
-		glm::vec4* color = nullptr;
-		glm::vec3* position = nullptr;
-		glm::vec3* velocity = nullptr;
-		glm::vec3* scale = nullptr;				
-		float* lifetime = nullptr;
+		glm::vec4 *color = nullptr;
+		glm::vec3 *position = nullptr;
+		glm::vec3 *velocity = nullptr;
+		glm::vec3 *scale = nullptr;
+		float *lifetime = nullptr;
 	};
 
-	class ParticleEmitter : public Object
+	class ParticleEmitter : public Object, public ISerializable
 	{
 	public:
 		~ParticleEmitter();
-				
+
+	protected:
+		bool Serialize(std::ostream &outStream) const override;
+		bool Deserialize(std::ifstream &inStream) override;
 
 	private:
 		ParticleEmitter(EParticleSimType type);
@@ -83,10 +87,10 @@ namespace LKT
 		void RenderGPU();
 		void RenderCPU();
 
-		void CreateGPUParticles(std::function<void(ParticleData* pd, ParticleInitialData* pid)> func);
+		void CreateGPUParticles(std::function<void(ParticleData *pd, ParticleInitialData *pid)> func);
 		void CreateCPUParticle(int32_t index);
 		void SwapParticleData(int32_t index);
-		
+
 		void GPUInitialize();
 		void CPUInitialize();
 

@@ -1,5 +1,6 @@
 #include "UniqueID.h"
 
+#include <cstring>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
@@ -24,20 +25,20 @@ namespace LKT
     {
         std::ostringstream oss;
         oss << std::hex << std::setfill('0');
-        for (int32 i = 0; i < data.size(); ++i) {
+        for (int32_t i = 0; i < data.size(); ++i) {
             if (i == 4 || i == 6 || i == 8 || i == 10)
                 oss << '-';
-            oss << std::setw(2) << static_cast<int32>(data[i]);
+            oss << std::setw(2) << static_cast<int32_t>(data[i]);
         }
         return oss.str();
     }
 
     void UniqueID::FromString(const std::string& guid_string)
     {
-        std::array<uint8, 16> result;
+        std::array<uint8_t, 16> result;
 
-        int32 pos = 0;
-        for (int32 i = 0; i < result.size(); ++i)
+        int32_t pos = 0;
+        for (int32_t i = 0; i < result.size(); ++i)
         {
             // Skip '-' characters
             if (guid_string[pos] == '-')
@@ -45,7 +46,7 @@ namespace LKT
 
             // Parse two hexadecimal characters
             std::string byte_string = guid_string.substr(pos, 2);
-            result[i] = static_cast<uint8>(std::stoi(byte_string, nullptr, 16));
+            result[i] = static_cast<uint8_t>(std::stoi(byte_string, nullptr, 16));
 
             pos += 2;
         }

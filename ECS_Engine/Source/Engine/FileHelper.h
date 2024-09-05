@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <iostream>
 #include <string>
+#include <vector>
 
 namespace LKT
 {
@@ -10,11 +11,11 @@ namespace LKT
 
 	namespace FileHelper
 	{
-		static void GetFilesFromDirectory(const std::string& folderPath, std::vector<std::string>& files)
+		static void GetFilesFromDirectory(const std::string &folderPath, std::vector<std::string> &files)
 		{
 			try
 			{
-				for (const auto& entry : fs::directory_iterator(folderPath))
+				for (const auto &entry : fs::directory_iterator(folderPath))
 				{
 					if (entry.is_regular_file())
 					{
@@ -22,17 +23,48 @@ namespace LKT
 					}
 				}
 			}
-			catch (const fs::filesystem_error& e)
+			catch (const fs::filesystem_error &e)
 			{
 				std::cerr << "Error: " << e.what() << std::endl;
 			}
 		}
 
-		static void GetDirectoriesFromDirectory(const std::string& directoryPath, std::vector<std::string>& directories)
+		static void GetFilesFromDirectory(const std::string &folderPath, std::vector<fs::path> &files, bool recursive = true)
 		{
 			try
 			{
-				for (const auto& entry : fs::directory_iterator(directoryPath))
+				if (recursive)
+				{
+					for (const auto &entry : fs::recursive_directory_iterator(folderPath))
+					{
+						if (entry.is_regular_file())
+						{
+							files.push_back(entry.path());
+						}
+					}
+				}
+				else
+				{
+					for (const auto &entry : fs::directory_iterator(folderPath))
+					{
+						if (entry.is_regular_file())
+						{
+							files.push_back(entry.path());
+						}
+					}
+				}
+			}
+			catch (const fs::filesystem_error &e)
+			{
+				std::cerr << "Error: " << e.what() << std::endl;
+			}
+		}
+
+		static void GetDirectoriesFromDirectory(const std::string &directoryPath, std::vector<std::string> &directories)
+		{
+			try
+			{
+				for (const auto &entry : fs::directory_iterator(directoryPath))
 				{
 					if (entry.is_directory())
 					{
@@ -40,13 +72,13 @@ namespace LKT
 					}
 				}
 			}
-			catch (const fs::filesystem_error& e)
+			catch (const fs::filesystem_error &e)
 			{
 				std::cerr << "Error: " << e.what() << std::endl;
 			}
 		}
 
-		static std::vector<std::string> SplitString(const std::string& inString, char delimiter)
+		static std::vector<std::string> SplitString(const std::string &inString, char delimiter)
 		{
 			std::vector<std::string> tokens;
 			std::istringstream iss(inString);

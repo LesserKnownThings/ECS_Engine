@@ -3,6 +3,7 @@
 #include "assimp/postprocess.h"
 #include "assimp/scene.h"
 
+#include <filesystem>
 #include <iostream>
 
 namespace LKT

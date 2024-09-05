@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Math/Numerals.h"
-#include "Math/Transforms.h"
+#include "glm/glm.hpp"
+
+#include <cstdint>
 
 namespace LKT
 {
@@ -14,8 +15,8 @@ namespace LKT
 		Color(float inR, float inG, float inB, float inA)
 			: r(inR), g(inG), b(inB), a(inA) {}
 
-		Vector3 GetVector() const;
-		Vector4 GetVectorAlpha() const;
+		glm::vec3 GetVector() const;
+		glm::vec4 GetVectorAlpha() const;
 
 		static const Color red;
 		static const Color blue;

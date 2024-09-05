@@ -21,7 +21,7 @@ namespace LKT
 		typedef void* ptr;
 		using functionPtr = std::function<void(Args...)>;
 
-		template<class C, typename... Args>
+		template<class C>
 		using memberFunctionPtr = void(C::*)(Args...);
 
 	public:
@@ -30,16 +30,18 @@ namespace LKT
 			return internalStubs.size() > 0;
 		}
 
-		template<class C, typename... Args>
-		static Delegate<Args...> CreateDelegate(C* obj, memberFunctionPtr<C, Args...> funcPtr)
+/*
+		template<class C>
+		static Delegate<Args...> CreateDelegate(C* obj, memberFunctionPtr<C> funcPtr)
 		{
 			static Delegate<Args...> new_del;
 			new_del.Bind(obj, funcPtr);
 			return new_del;
 		}
+*/
 
-		template<class C, typename... Args>
-		void Bind(C* owningObj, memberFunctionPtr<C, Args...> funcPtr)
+		template<class C>
+		void Bind(C* owningObj, memberFunctionPtr<C> funcPtr)
 		{
 			functionPtr new_func_ptr =
 				[owningObj, funcPtr](Args... args)

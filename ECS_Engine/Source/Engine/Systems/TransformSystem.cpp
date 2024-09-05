@@ -4,8 +4,9 @@
 #include "ShaderSystem/ShaderManager.h"
 #include "glm/glm.hpp"
 #include <glm/gtc/matrix_transform.hpp>
-#include <assert.h>
 
+#include <cassert>
+#include <cstring>
 #include <iostream>
 
 namespace LKT
@@ -231,7 +232,7 @@ namespace LKT
 
 	void TransformSystem::AllocateMemory(int32_t size)
 	{
-		assert(size > transformComponent.allocatedInstances);
+		assert(("New allocated size needs to be bigger than old allocated size!", size > transformComponent.allocatedInstances));
 
 		TransformComponent newComponent;
 

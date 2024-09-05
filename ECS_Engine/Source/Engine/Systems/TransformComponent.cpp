@@ -1,5 +1,7 @@
 #include "TransformComponent.h"
 
+#include <cstring>
+
 namespace LKT
 {
 	TransformComponentResource::TransformComponentResource(int32_t instances, glm::vec3* position, glm::vec3* eulerAngles, glm::vec3* scale)

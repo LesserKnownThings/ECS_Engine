@@ -1,5 +1,8 @@
 #include "CameraSystem.h"
-#include "glew.h"
+#include "glew/glew.h"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
+#include "SDL/SDL.h"
 #include "Systems/InputSystem/InputManagerSystem.h"
 #include "Systems/ShaderSystem/ShaderManager.h"
 #include "Systems/ShaderSystem/ShaderProgram.h"
@@ -9,7 +12,7 @@
 
 namespace LKT
 {
-    CameraSystem::CameraSystem(int32 inWidth, int32 inHeight)
+    CameraSystem::CameraSystem(int32_t inWidth, int32_t inHeight)
         : width(inWidth), height(inHeight)
     {
         glGenBuffers(1, &ubo);
@@ -17,12 +20,12 @@ namespace LKT
         glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, nullptr, GL_STATIC_DRAW);
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
 
-        //This is set in the shader program uniform buffer settings
+        // This is set in the shader program uniform buffer settings
         glBindBufferRange(GL_UNIFORM_BUFFER, 0, ubo, 0, 2 * sizeof(glm::mat4));
 
         HandleTypeChanged();
         UpdateVectors();
-        SetRotation(Vector3(pitch, yaw, 0.0f));
+        SetRotation(glm::vec3(pitch, yaw, 0.0f));
 
         TaskManagerSystem::Get().RegisterTask(this, &CameraSystem::Process);
 
@@ -101,13 +104,13 @@ namespace LKT
         }
     }
 
-    void CameraSystem::SetPosition(const Vector3& newPosition)
+    void CameraSystem::SetPosition(const glm::vec3 &newPosition)
     {
         position = newPosition;
         UpdateVectors();
     }
 
-    void CameraSystem::SetRotation(const Vector3& eulerAngles)
+    void CameraSystem::SetRotation(const glm::vec3 &eulerAngles)
     {
         glm::vec3 correctedEulers = eulerAngles;
 
@@ -121,29 +124,29 @@ namespace LKT
         yaw = correctedEulers.y;
         pitch = correctedEulers.x;
 
-        Vector3 front = Vector3(0.0f);
+        glm::vec3 front = glm::vec3(0.0f);
 
-        front.x = sin(glm::radians(yaw)) * cos(TO_RADIANS(pitch));
-        front.y = sin(TO_RADIANS(pitch));
-        front.z = -cos(TO_RADIANS(yaw)) * cos(TO_RADIANS(pitch));
+        front.x = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+        front.y = sin(glm::radians(pitch));
+        front.z = -cos(glm::radians(yaw)) * cos(glm::radians(pitch));
 
-        forward = NORMALIZE(front);
+        forward = glm::normalize(front);
 
-        right = NORMALIZE(CROSS(forward, worldUp));
-        up = NORMALIZE(CROSS(right, forward));
+        right = glm::normalize(glm::cross(forward, worldUp));
+        up = glm::normalize(glm::cross(right, forward));
 
         UpdateVectors();
     }
 
-    void CameraSystem::Move(const Vector3& direction)
+    void CameraSystem::Move(const glm::vec3 &direction)
     {
         position += direction;
         UpdateVectors();
     }
 
-    void CameraSystem::Rotate(const Vector3& axis)
+    void CameraSystem::Rotate(const glm::vec3 &axis)
     {
-        const Vector3 eulers(axis.x + pitch, yaw + axis.y, axis.z);
+        const glm::vec3 eulers(axis.x + pitch, yaw + axis.y, axis.z);
         SetRotation(eulers);
     }
 
@@ -167,7 +170,7 @@ namespace LKT
     {
         if (width > 0 && height > 0)
         {
-            projection = glm::perspective(TO_RADIANS(fieldOfView), static_cast<float>(width) / static_cast<float>(height), nearView, farView);
+            projection = glm::perspective(glm::radians(fieldOfView), static_cast<float>(width) / static_cast<float>(height), nearView, farView);
         }
     }
 
@@ -188,14 +191,13 @@ namespace LKT
             view = glm::lookAt(
                 position,
                 position + forward,
-                up
-            );
+                up);
         }
         else
         {
-            Vector3 pos = position;
-            pos.y *= -1; //SDL y is inverted
-            view = glm::translate(Mat4(1.0f), pos);
+            glm::vec3 pos = position;
+            pos.y *= -1; // SDL y is inverted
+            view = glm::translate(glm::mat4(1.0f), pos);
         }
 
         UpdateView();
@@ -215,9 +217,12 @@ namespace LKT
         glBindBuffer(GL_UNIFORM_BUFFER, 0);
     }
 
-    void CameraSystem::HandleMousePressed(const SDL_MouseButtonEvent& mouseEvent)
+    void CameraSystem::HandleMousePressed(const SDL_MouseButtonEvent &mouseEvent)
     {
-        SDL_SetRelativeMouseMode(SDL_TRUE);
+        if (SDL_Window *currentWindow = SDL_GL_GetCurrentWindow())
+        {
+            // SDL_SetWindowRelativeMouseMode(currentWindow, SDL_TRUE);
+        }
 
         if (mouseEvent.button == SDL_BUTTON_RIGHT)
         {
@@ -229,7 +234,7 @@ namespace LKT
         }
     }
 
-    void CameraSystem::HandleMouseReleased(const SDL_MouseButtonEvent& mouseEvent)
+    void CameraSystem::HandleMouseReleased(const SDL_MouseButtonEvent &mouseEvent)
     {
         if (mouseEvent.button == SDL_BUTTON_RIGHT)
         {
@@ -242,11 +247,14 @@ namespace LKT
 
         if (movementType == 0)
         {
-            SDL_SetRelativeMouseMode(SDL_FALSE);
+            if (SDL_Window *currentWindow = SDL_GL_GetCurrentWindow())
+            {
+                //  SDL_SetWindowRelativeMouseMode(currentWindow, SDL_FALSE);
+            }
         }
     }
 
-    //TODO this should not affect a game, it should only affect the engine since a user might want a custom movement in their game or no movement at all
+    // TODO this should not affect a game, it should only affect the engine since a user might want a custom movement in their game or no movement at all
     void CameraSystem::Process(float deltaTime)
     {
         glm::vec2 mouseDelta = InputManagerSystem::Get().GetMouseDelta();
@@ -256,7 +264,7 @@ namespace LKT
         {
             movementVec = InputManagerSystem::Get().GetHorizontalAxis() * right + InputManagerSystem::Get().GetVerticalAxis() * forward;
             mouseDelta *= deltaTime * rotationSpeed;
-            
+
             Rotate(glm::vec3(-mouseDelta.y, mouseDelta.x, 0.0f));
         }
         else if (movementType & MOUSE_MOVE)
@@ -271,6 +279,6 @@ namespace LKT
             }
         }
 
-        Move(movementVec * deltaTime * movementSpeed);        
+        Move(movementVec * deltaTime * movementSpeed);
     }
 }

@@ -1,7 +1,7 @@
 #include "ParticleEmitterShapeManager.h"
 #include "FileHelper.h"
+#include "lua/lua.hpp"
 
-#include <lua.hpp>
 #include <vector>
 
 namespace LKT

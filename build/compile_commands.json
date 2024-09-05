@@ -1,0 +1,222 @@
+[
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/Assets/ParticleSystemAsset.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Assets/ParticleSystemAsset.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Assets/ParticleSystemAsset.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/Assets/Texture.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Assets/Texture.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Assets/Texture.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/Color.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Color.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Color.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/ECS.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/ECS.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/ECS.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/Engine.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Engine.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Engine.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/EntityManager.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/EntityManager.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/EntityManager.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/Experimental/BuddyAllocator.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Experimental/BuddyAllocator.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Experimental/BuddyAllocator.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/GraphicHelpers.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/GraphicHelpers.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/GraphicHelpers.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/Object.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Object.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Object.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/Systems/AssetManager/Asset.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/AssetManager/Asset.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/AssetManager/Asset.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/Systems/AssetManager/AssetFactory.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/AssetManager/AssetFactory.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/AssetManager/AssetFactory.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/Systems/AssetManager/AssetManager.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/AssetManager/AssetManager.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/AssetManager/AssetManager.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/Systems/AssetManager/LazyAssetPtr.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/AssetManager/LazyAssetPtr.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/AssetManager/LazyAssetPtr.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/Systems/CameraSystem.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/CameraSystem.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/CameraSystem.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/Systems/DebugSystem.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/DebugSystem.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/DebugSystem.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/Systems/InputSystem/InputManagerSystem.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/InputSystem/InputManagerSystem.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/InputSystem/InputManagerSystem.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/Systems/InputSystem/InputMapping.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/InputSystem/InputMapping.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/InputSystem/InputMapping.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/Systems/InputSystem/InputSystem.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/InputSystem/InputSystem.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/InputSystem/InputSystem.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/Systems/LuaStateManager.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/LuaStateManager.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/LuaStateManager.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/Systems/MeshLoadingSystem.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/MeshLoadingSystem.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/MeshLoadingSystem.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/Systems/OpenGLSystem.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/OpenGLSystem.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/OpenGLSystem.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/Systems/ParticleSystem/ParticleEmitter.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/ParticleSystem/ParticleEmitter.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/ParticleSystem/ParticleEmitter.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/Systems/ParticleSystem/ParticleEmitterShape.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/ParticleSystem/ParticleEmitterShape.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/ParticleSystem/ParticleEmitterShape.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/Systems/ParticleSystem/ParticleEmitterShapeManager.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/ParticleSystem/ParticleEmitterShapeManager.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/ParticleSystem/ParticleEmitterShapeManager.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/Systems/ParticleSystem/ParticleSystem.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/ParticleSystem/ParticleSystem.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/ParticleSystem/ParticleSystem.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/Systems/RenderComponent.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/RenderComponent.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/RenderComponent.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/Systems/ResourceManagerSystem.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/ResourceManagerSystem.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/ResourceManagerSystem.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/Systems/ShaderSystem/ShaderManager.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/ShaderSystem/ShaderManager.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/ShaderSystem/ShaderManager.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/Systems/ShaderSystem/ShaderProgram.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/ShaderSystem/ShaderProgram.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/ShaderSystem/ShaderProgram.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/Systems/TaskManagerSystem.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/TaskManagerSystem.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/TaskManagerSystem.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/Systems/TransformComponent.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/TransformComponent.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/TransformComponent.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/Systems/TransformSystem.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/TransformSystem.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/TransformSystem.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/Systems/WorkDispatcherSystem.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/WorkDispatcherSystem.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/WorkDispatcherSystem.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/Systems/World/World.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/World/World.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/World/World.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/Systems/World/WorldSpawner.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/World/WorldSpawner.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/Systems/World/WorldSpawner.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/UI/EngineWindow.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/UI/EngineWindow.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/UI/EngineWindow.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/UI/UIManager.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/UI/UIManager.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/UI/UIManager.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/UniqueID.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/UniqueID.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/UniqueID.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/imgui/backends/imgui_impl_opengl3.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/imgui/backends/imgui_impl_opengl3.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/imgui/backends/imgui_impl_opengl3.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/imgui/backends/imgui_impl_sdl3.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/imgui/backends/imgui_impl_sdl3.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/imgui/backends/imgui_impl_sdl3.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/imgui/imgui.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/imgui/imgui.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/imgui/imgui.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/imgui/imgui_draw.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/imgui/imgui_draw.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/imgui/imgui_draw.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/imgui/imgui_tables.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/imgui/imgui_tables.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/imgui/imgui_tables.cpp"
+},
+{
+  "directory": "/home/mursu/FastBoi/GitHub/ECS_Engine/build",
+  "command": "/usr/bin/g++ -DGLEW_NO_GLU -I/home/mursu/FastBoi/GitHub/ECS_Engine/Include -I/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine -g -std=c++20 -o CMakeFiles/ECS_Engine.dir/ECS_Engine/Source/Engine/imgui/imgui_widgets.cpp.o -c /home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/imgui/imgui_widgets.cpp",
+  "file": "/home/mursu/FastBoi/GitHub/ECS_Engine/ECS_Engine/Source/Engine/imgui/imgui_widgets.cpp"
+}
+]

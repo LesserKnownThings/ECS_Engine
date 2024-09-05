@@ -10,10 +10,13 @@ namespace LKT
 	class Texture : public Asset
 	{
 	public:
-		uint32_t GetTextureID() const { return textureID; }		
+		uint32_t GetTextureID() const { return textureID; }
+
+		int32_t GetWidth() const { return width; }
+		int32_t GetHeight() const { return height; }
 
 	protected:
-		void LoadAsset(const std::string& inPath) override;
+		void LoadAsset(const AssetPath &inPath) override;
 
 	private:
 		int32_t width = 0;

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <functional>
 #include <vector>
 
 namespace LKT
@@ -10,24 +9,23 @@ namespace LKT
 
 	struct Entity
 	{
-		uint32_t id;
+		Entity() : id(0) {}
+		Entity(uint32_t inId)
+			: id(inId) {}
 
-		bool operator==(const Entity& e) const
+		bool operator==(const Entity &e) const
 		{
 			return id == e.id;
 		}
 
-		bool operator==(const uint32_t other) const
-		{
-			return other == id;
-		}
+		uint32_t id;
 	};
 }
 
-template<>
+template <>
 struct std::hash<LKT::Entity>
 {
-	size_t operator()(const LKT::Entity& e) const
+	size_t operator()(const LKT::Entity &e) const
 	{
 		return std::hash<uint32_t>()(e.id);
 	}

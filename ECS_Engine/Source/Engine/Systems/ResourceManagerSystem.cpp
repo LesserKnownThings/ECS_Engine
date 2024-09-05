@@ -20,29 +20,4 @@ namespace LKT
 				func(entityCount, entities, componentData);
 			};
 	}
-
-	//uint32_t ResourceManagerSystem::CreateComponent(const Entity& e, ComponentType type, void* componentData)
-	//{
-	//	const auto& it = creationFunctions.find(type);
-
-	//	if (it != creationFunctions.end())
-	//	{
-	//		return it->second(e, componentData);
-	//	}
-
-	//	return 0;
-	//}
-
-	//int32_t ResourceManagerSystem::FindComponentDataIndex(ComponentType type, int32_t componentsCount, const ComponentData* data)
-	//{
-	//	for (int32_t i = 0; i < componentsCount; ++i)
-	//	{
-	//		if (data[i].type == type)
-	//		{
-	//			return i;
-	//		}
-	//	}
-
-	//	return -1;
-	//}
 }

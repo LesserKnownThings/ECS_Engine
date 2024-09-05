@@ -1,5 +1,6 @@
 #include "ShaderProgram.h"
-#include "glew.h"
+#include "glew/glew.h"
+#include "glm/gtc/type_ptr.hpp"
 
 #include <fstream>
 #include <sstream>
@@ -14,10 +15,10 @@ namespace LKT
 
     void ShaderProgram::SetBool(const std::string& name, bool value) const
     {
-        glUniform1i(glGetUniformLocation(id, name.c_str()), static_cast<int32>(value));
+        glUniform1i(glGetUniformLocation(id, name.c_str()), static_cast<int32_t>(value));
     }
 
-    void ShaderProgram::SetInt(const std::string& name, int32 value) const
+    void ShaderProgram::SetInt(const std::string& name, int32_t value) const
     {
         glUniform1i(glGetUniformLocation(id, name.c_str()), value);
     }
@@ -27,7 +28,7 @@ namespace LKT
         glUniform1f(glGetUniformLocation(id, name.c_str()), value);
     }
 
-    void ShaderProgram::SetVec3(const std::string& name, const Vector3& value) const
+    void ShaderProgram::SetVec3(const std::string& name, const glm::vec3& value) const
     {
         glUniform3f(glGetUniformLocation(id, name.c_str()), value.x, value.y, value.z);
     }
@@ -42,13 +43,13 @@ namespace LKT
         glUniformMatrix4fv(glGetUniformLocation(id, name.c_str()), 1, GL_FALSE, value);
     }
 
-    void ShaderProgram::SetVec3Array(const std::string& name, const std::vector<Vector3>& data)
+    void ShaderProgram::SetVec3Array(const std::string& name, const std::vector<glm::vec3>& data)
     {
-        int32 uniformLocation = glGetUniformLocation(id, name.c_str());
+        int32_t uniformLocation = glGetUniformLocation(id, name.c_str());
 
         if (uniformLocation != -1)
         {
-            for (int32 i = 0; i < data.size(); ++i)
+            for (int32_t i = 0; i < data.size(); ++i)
             {
                 glUniform3fv(uniformLocation + i, 1, glm::value_ptr(data[i]));
             }
@@ -95,18 +96,18 @@ namespace LKT
         vertex = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(vertex, 1, &vShaderCode, NULL);
         glCompileShader(vertex);
-        CheckCompilerError(vertex, "VERTEX");
+        CheckCompilerError(vertex, "VERTEX", vertexShaderPath);
 
         fragment = glCreateShader(GL_FRAGMENT_SHADER);
         glShaderSource(fragment, 1, &fShaderCode, NULL);
         glCompileShader(fragment);
-        CheckCompilerError(fragment, "FRAGMENT");
+        CheckCompilerError(fragment, "FRAGMENT", fragmentShaderPath);
 
         id = glCreateProgram();
         glAttachShader(id, vertex);
         glAttachShader(id, fragment);
         glLinkProgram(id);
-        CheckCompilerError(id, "PROGRAM");
+        CheckCompilerError(id, "PROGRAM", vertexShaderPath);
 
         glDeleteShader(vertex);
         glDeleteShader(fragment);
@@ -146,12 +147,12 @@ namespace LKT
         compute = glCreateShader(GL_COMPUTE_SHADER);
         glShaderSource(compute, 1, &cShaderCode, NULL);
         glCompileShader(compute);
-        CheckCompilerError(compute, "COMPUTE");
+        CheckCompilerError(compute, "COMPUTE", computeShaderPath);
 
         id = glCreateProgram();
         glAttachShader(id, compute);
         glLinkProgram(id);
-        CheckCompilerError(id, "PROGRAM");
+        CheckCompilerError(id, "PROGRAM", computeShaderPath);
     }
 
     void ShaderProgram::SetUniformBuffers()
@@ -163,9 +164,9 @@ namespace LKT
         glUniformBlockBinding(id, lightUBO, lightUBOIndex);
     }
 
-    void ShaderProgram::CheckCompilerError(uint32 shader, std::string type)
+    void ShaderProgram::CheckCompilerError(uint32_t shader, std::string type, const std::string& shaderPath)
     {
-        int32 success;
+        int32_t success;
         char infoLog[1024];
         if (type != "PROGRAM")
         {
@@ -173,7 +174,7 @@ namespace LKT
             if (!success)
             {
                 glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-                std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+                std::cout << "ERROR::SHADER_COMPILATION_ERROR of type: " << shaderPath << " " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
             }
         }
         else
@@ -182,7 +183,7 @@ namespace LKT
             if (!success)
             {
                 glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-                std::cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+                std::cout << "ERROR::PROGRAM_LINKING_ERROR of type: " << shaderPath << " "  << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
             }
         }
     }

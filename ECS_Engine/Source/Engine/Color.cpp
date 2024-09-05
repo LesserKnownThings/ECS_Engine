@@ -9,13 +9,13 @@ namespace LKT
 	const Color Color::white = Color(1.0f, 1.0f, 1.0f);
 	const Color Color::black = Color(0.0f, 0.0f, 0.0f);
 
-	Vector3 Color::GetVector() const
+	glm::vec3 Color::GetVector() const
 	{
-		return Vector3(r, g, b);
+		return glm::vec3(r, g, b);
 	}
 
-	Vector4 Color::GetVectorAlpha() const
+	glm::vec4 Color::GetVectorAlpha() const
 	{
-		return Vector4(r, g, b, a);
+		return glm::vec4(r, g, b, a);
 	}
 }

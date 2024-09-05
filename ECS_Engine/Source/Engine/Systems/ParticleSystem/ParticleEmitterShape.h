@@ -1,14 +1,13 @@
 #pragma once
 
-#include "../../Math/Numerals.h"
-#include "../../Math/Transforms.h"
 #include "ParticleShapeData.h"
+#include "glm/glm.hpp"
 
 #include <functional>
 
 namespace LKT
 {
-	using ShapeDataFunc = std::function<void(const Vector3& position, const Vector3& velocity)>;
+	using ShapeDataFunc = std::function<void(const glm::vec3& position, const glm::vec3& velocity)>;
 
 	class ParticleEmitterShape
 	{

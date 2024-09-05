@@ -1,7 +1,8 @@
 #pragma once
 
+#include "lua/lua.hpp"
+
 #include <cstdint>
-#include <lua.hpp>
 #include <string>
 
 namespace LKT

@@ -17,14 +17,14 @@ namespace LKT
 {
 	constexpr uint16_t INVALID_COMPONENT = 0;
 
-	using CreationFunction = std::function<void(int32_t, Entity*, void*)>;
+	using CreationFunction = std::function<void(int32_t, Entity *, void *)>;
 
 	struct ComponentResourceData
 	{
 		ComponentResourceData() = default;
 
 		uint32_t component = 0;
-		void* data = nullptr;
+		void *data = nullptr;
 	};
 
 	struct EntityResource
@@ -32,51 +32,46 @@ namespace LKT
 		EntityResource(int32_t inEntitiesCount)
 			: entitiesCount(inEntitiesCount)
 		{
-			entities = (Entity*)malloc(entitiesCount * sizeof(Entity));
+			entities = (Entity *)malloc(entitiesCount * sizeof(Entity));
 		}
 
-		template<typename... Args>
-		void AddComponentResources(Args&&... args);		
+		template <typename... Args>
+		void AddComponentResources(Args &&...args);
 
 		int32_t entitiesCount = 0;
 
-		Entity* entities = nullptr;
-		
+		Entity *entities = nullptr;
+
 		std::unordered_map<std::type_index, ComponentResourceData> components;
 
 	private:
-		template<typename T>
+		template <typename T>
 		void AddComponentResource(T res);
 	};
 
 	class ResourceManagerSystem
 	{
 	public:
-		static ResourceManagerSystem& Get();
+		static ResourceManagerSystem &Get();
 
 		void RegisterFunction(std::type_index type, CreationFunction func);
 
-		//Spawns entities based on the EntityResource and stores the data in the same object
-		template<typename... Args>
-		void SpawnEntities(EntityResource& resource);
+		// Spawns entities based on the EntityResource and stores the data in the same object
+		template <typename... Args>
+		void SpawnEntities(EntityResource &resource);
 
-		//uint32_t CreateComponent(const Entity& e, ComponentType type, void* componentData);
 	private:
-		template<typename T>
-		void CreateComponents(EntityResource& resource);
-
-
-		//The function doesn't make sure the componentsCount is valid, so make sure to send the right amount
-		//int32_t FindComponentDataIndex(ComponentType type, int32_t componentsCount, const ComponentData* data);
+		template <typename T>
+		void CreateComponents(EntityResource &resource);
 
 		std::unordered_map<std::type_index, CreationFunction> factories;
 
-		//Used to index all components in the project
+		// Used to index all components in the project
 		static uint16_t componentTypeIndex;
 	};
 
-	template<typename T>
-	void ResourceManagerSystem::CreateComponents(EntityResource& resource)
+	template <typename T>
+	void ResourceManagerSystem::CreateComponents(EntityResource &resource)
 	{
 		auto it = factories.find(typeid(T));
 
@@ -86,8 +81,8 @@ namespace LKT
 		}
 	}
 
-	template<typename... Args>
-	void ResourceManagerSystem::SpawnEntities(EntityResource& resource)
+	template <typename... Args>
+	void ResourceManagerSystem::SpawnEntities(EntityResource &resource)
 	{
 		for (int32_t i = 0; i < resource.entitiesCount; ++i)
 		{
@@ -97,16 +92,16 @@ namespace LKT
 		(CreateComponents<Args>(resource), ...);
 	}
 
-	template<typename ...Args>
-	inline void EntityResource::AddComponentResources(Args&&... args)
+	template <typename... Args>
+	void EntityResource::AddComponentResources(Args &&...args)
 	{
 		(AddComponentResource(std::forward<Args>(args)), ...);
 	}
 
-	template<typename T>
-	inline void EntityResource::AddComponentResource(T res)
+	template <typename T>
+	void EntityResource::AddComponentResource(T res)
 	{
-		if (ComponentResource* compRes = reinterpret_cast<ComponentResource*>(&res))
+		if (ComponentResource *compRes = reinterpret_cast<ComponentResource *>(&res))
 		{
 			ComponentResourceData compData;
 			compData.data = std::move(compRes->buffer);
@@ -114,14 +109,16 @@ namespace LKT
 		}
 	}
 
-	//Bootleg reflection system
-#define REGISTER_COMPONENT(type, compRes) \
-	struct type##ComponentRegistrar { \
-		type##ComponentRegistrar() { \
-			type& instance = type::Get(); \
-			ResourceManagerSystem::Get().RegisterFunction(typeid(compRes), [&instance](int32_t entityCount, Entity* e, void* data)\
-			{ instance.CreateComponents(entityCount, e, data); }); \
-		}\
-	}; \
-	static type##ComponentRegistrar type##RegistrarInstance;	
+	// Bootleg reflection system
+#define REGISTER_COMPONENT(type, compRes)                                                                                          \
+	struct type##ComponentRegistrar                                                                                                \
+	{                                                                                                                              \
+		type##ComponentRegistrar()                                                                                                 \
+		{                                                                                                                          \
+			type &instance = type::Get();                                                                                          \
+			ResourceManagerSystem::Get().RegisterFunction(typeid(compRes), [&instance](int32_t entityCount, Entity *e, void *data) \
+														  { instance.CreateComponents(entityCount, e, data); });                   \
+		}                                                                                                                          \
+	};                                                                                                                             \
+	static type##ComponentRegistrar type##RegistrarInstance;
 }

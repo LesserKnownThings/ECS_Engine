@@ -2,18 +2,22 @@
 
 namespace LKT
 {
-	void Asset::LoadAsset(const std::string& inPath)
+	void Asset::LoadAsset(const AssetPath& inPath)
 	{
 		path = inPath;
 	}
 
-	void Asset::Serialize()
+	bool Asset::Serialize(std::ostream &outStream) const
 	{
-		
+		outStream.write(reinterpret_cast<const char *>(&path), sizeof(path));
+
+		return true;
 	}
 
-	void Asset::Deserialize()
+	bool Asset::Deserialize(std::ifstream &inStream)
 	{
+		inStream.read(reinterpret_cast<char *>(&path), sizeof(path));
 
+		return true;
 	}
 }

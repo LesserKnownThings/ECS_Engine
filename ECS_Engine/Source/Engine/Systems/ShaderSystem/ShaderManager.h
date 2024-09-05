@@ -38,7 +38,7 @@ namespace LKT
 
 		std::string activeShader;
 
-		const std::string engineShadersPath = "Data\\EngineShaders";
+		const std::string engineShadersPath = "Data/EngineShaders";
 
 		std::unordered_map<std::string, ShaderProgram*> engineShaders;
 

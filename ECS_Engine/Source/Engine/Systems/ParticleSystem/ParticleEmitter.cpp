@@ -1,5 +1,6 @@
 #include "ParticleEmitter.h"
-#include "glew.h"
+#include "glm/gtc/type_ptr.hpp"
+#include "glew/glew.h"
 #include "ParticleEmitterShapeManager.h"
 #include "Systems/MeshLoadingSystem.h"
 #include "Systems/ShaderSystem/ShaderManager.h"
@@ -19,17 +20,45 @@ namespace LKT
 
 	ParticleEmitter::~ParticleEmitter()
 	{
-		uint32_t buffers[] = { ebo, vbo, perIndexVbo, ssbo, initialSsbo };
+		uint32_t buffers[] = {ebo, vbo, perIndexVbo, ssbo, initialSsbo};
 
 		glDeleteBuffers(5, buffers);
 		glDeleteVertexArrays(1, &vao);
+	}
+
+	bool ParticleEmitter::Serialize(std::ostream &outStream) const
+	{
+		outStream.write(reinterpret_cast<const char *>(&commonParticleData.initialColor), sizeof(Color));
+		outStream.write(reinterpret_cast<const char *>(&commonParticleData.rate), sizeof(uint32_t));
+		outStream.write(reinterpret_cast<const char *>(&commonParticleData.maxAmount), sizeof(uint32_t));
+		outStream.write(reinterpret_cast<const char *>(&commonParticleData.speed), sizeof(float));
+		outStream.write(reinterpret_cast<const char *>(&commonParticleData.lifetime), sizeof(float));
+		outStream.write(reinterpret_cast<const char *>(&commonParticleData.useGravity), sizeof(bool));
+		outStream.write(reinterpret_cast<const char *>(&commonParticleData.isLocal), sizeof(bool));
+		outStream.write(reinterpret_cast<const char *>(&commonParticleData.simType), sizeof(EParticleSimType));
+
+		return true;
+	}
+
+	bool ParticleEmitter::Deserialize(std::ifstream &inStream)
+	{
+		inStream.read(reinterpret_cast<char *>(&commonParticleData.initialColor), sizeof(Color));
+		inStream.read(reinterpret_cast<char *>(&commonParticleData.rate), sizeof(uint32_t));
+		inStream.read(reinterpret_cast<char *>(&commonParticleData.maxAmount), sizeof(uint32_t));
+		inStream.read(reinterpret_cast<char *>(&commonParticleData.speed), sizeof(float));
+		inStream.read(reinterpret_cast<char *>(&commonParticleData.lifetime), sizeof(float));
+		inStream.read(reinterpret_cast<char *>(&commonParticleData.useGravity), sizeof(bool));
+		inStream.read(reinterpret_cast<char *>(&commonParticleData.isLocal), sizeof(bool));
+		inStream.read(reinterpret_cast<char *>(&commonParticleData.simType), sizeof(EParticleSimType));
+
+		return true;
 	}
 
 	ParticleEmitter::ParticleEmitter(EParticleSimType type)
 	{
 		commonParticleData.simType = type;
 
-		//Shape type is hardcoded for now since 1 I don't have a system to serialize the objects yet and 2 I don't have a world to manage objects so I can't exactly set them up from UI
+		// Shape type is hardcoded for now since 1 I don't have a system to serialize the objects yet and 2 I don't have a world to manage objects so I can't exactly set them up from UI
 		ParticleEmitterShapeManager::Get().GetEmitterTypeData("Sphere", particleShapeData);
 
 		switch (commonParticleData.simType)
@@ -40,7 +69,7 @@ namespace LKT
 		default:
 			GPUInitialize();
 			break;
-		}		
+		}
 	}
 
 	void ParticleEmitter::SetSimType(EParticleSimType type)
@@ -63,14 +92,14 @@ namespace LKT
 	void ParticleEmitter::CreateComputerBuffers()
 	{
 		CreateGPUParticles(
-			[this](ParticleData* pd, ParticleInitialData* pid)
+			[this](ParticleData *pd, ParticleInitialData *pid)
 			{
 				glGenBuffers(1, &ssbo);
 				glBindBuffer(GL_SHADER_STORAGE_BUFFER, ssbo);
 				glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(ParticleData) * commonParticleData.maxAmount, pd, GL_DYNAMIC_DRAW);
 				glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, ssbo);
 
-				//Creating 2 buffers one for initial data and another for current
+				// Creating 2 buffers one for initial data and another for current
 				glGenBuffers(1, &initialSsbo);
 				glBindBuffer(GL_SHADER_STORAGE_BUFFER, initialSsbo);
 				glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(ParticleInitialData) * commonParticleData.maxAmount, pid, GL_DYNAMIC_DRAW);
@@ -78,14 +107,14 @@ namespace LKT
 			});
 	}
 
-	void ParticleEmitter::CreateGPUParticles(std::function<void(ParticleData* pd, ParticleInitialData* pid)> func)
+	void ParticleEmitter::CreateGPUParticles(std::function<void(ParticleData *pd, ParticleInitialData *pid)> func)
 	{
-		ParticleData* particleData = new ParticleData[commonParticleData.maxAmount];
-		ParticleInitialData* particleInitialData = new ParticleInitialData[commonParticleData.maxAmount];
+		ParticleData *particleData = new ParticleData[commonParticleData.maxAmount];
+		ParticleInitialData *particleInitialData = new ParticleInitialData[commonParticleData.maxAmount];
 
-		for (int32 i = 0; i < commonParticleData.maxAmount; ++i)
+		for (int32_t i = 0; i < commonParticleData.maxAmount; ++i)
 		{
-			const int32 iterator = i;
+			const int32_t iterator = i;
 
 			glm::vec3 pos, vel;
 			if (ParticleEmitterShapeManager::Get().GetShapeData(particleShapeData, pos, vel))
@@ -117,7 +146,7 @@ namespace LKT
 
 	void ParticleEmitter::CreateCPUParticle(int32_t index)
 	{
-		//We don't want to overflow our buffer
+		// We don't want to overflow our buffer
 		if (particleDataCPU.instancesCount == particleDataCPU.allocatedCount)
 		{
 			return;
@@ -153,11 +182,11 @@ namespace LKT
 		int32_t allocation = size * GetCPUParticleDataSize();
 		temp.buffer = malloc(allocation);
 
-		temp.color = (glm::vec4*)(temp.buffer);
-		temp.position = (glm::vec3*)(size + temp.color);
+		temp.color = (glm::vec4 *)(temp.buffer);
+		temp.position = (glm::vec3 *)(size + temp.color);
 		temp.velocity = size + temp.position;
 		temp.scale = size + temp.velocity;
-		temp.lifetime = (float*)(size + temp.scale);
+		temp.lifetime = (float *)(size + temp.scale);
 
 		memcpy(temp.color, particleDataCPU.color, temp.instancesCount * sizeof(glm::vec4));
 		memcpy(temp.position, particleDataCPU.position, temp.instancesCount * sizeof(glm::vec3));
@@ -181,8 +210,8 @@ namespace LKT
 
 		MeshLoadingSystem::Get().ImportMesh("Data/quad.obj");
 
-		MeshLoadingSystem::Get().GetMeshData("Data/quad.obj", [this](const DrawData& tempData)
-			{
+		MeshLoadingSystem::Get().GetMeshData("Data/quad.obj", [this](const DrawData &tempData)
+											 {
 				elementsCount = tempData.indicesCount;
 
 				glGenVertexArrays(1, &vao);
@@ -190,12 +219,12 @@ namespace LKT
 
 				glGenBuffers(1, &ebo);
 				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-				const int32 elementBufferSize = tempData.indicesCount * sizeof(uint32_t);
+				const int32_t elementBufferSize = tempData.indicesCount * sizeof(uint32_t);
 				glBufferData(GL_ELEMENT_ARRAY_BUFFER, elementBufferSize, tempData.indices.data(), GL_STATIC_DRAW);
 
 				glGenBuffers(1, &vbo);
 				glBindBuffer(GL_ARRAY_BUFFER, vbo);
-				const int32 vertexBufferSize = tempData.vertexCount * sizeof(VertexData);
+				const int32_t vertexBufferSize = tempData.vertexCount * sizeof(VertexData);
 				glBufferData(GL_ARRAY_BUFFER, vertexBufferSize, tempData.vertexData.buffer, GL_STATIC_DRAW);
 
 				glEnableVertexAttribArray(0);
@@ -205,8 +234,7 @@ namespace LKT
 				glBindBuffer(GL_ARRAY_BUFFER, perIndexVbo);
 				glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)sizeof(glm::vec4));
 				glVertexAttribDivisor(1, 1);
-				glBindBuffer(GL_ARRAY_BUFFER, 0);
-			});
+				glBindBuffer(GL_ARRAY_BUFFER, 0); });
 
 		glBindVertexArray(0);
 	}
@@ -215,8 +243,8 @@ namespace LKT
 	{
 		MeshLoadingSystem::Get().ImportMesh("Data/quad.obj");
 
-		MeshLoadingSystem::Get().GetMeshData("Data/quad.obj", [this](const DrawData& tempData)
-			{
+		MeshLoadingSystem::Get().GetMeshData("Data/quad.obj", [this](const DrawData &tempData)
+											 {
 				elementsCount = tempData.indicesCount;
 
 				glGenVertexArrays(1, &vao);
@@ -224,17 +252,16 @@ namespace LKT
 
 				glGenBuffers(1, &ebo);
 				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-				const int32 elementBufferSize = tempData.indicesCount * sizeof(uint32_t);
+				const int32_t elementBufferSize = tempData.indicesCount * sizeof(uint32_t);
 				glBufferData(GL_ELEMENT_ARRAY_BUFFER, elementBufferSize, tempData.indices.data(), GL_STATIC_DRAW);
 
 				glGenBuffers(1, &vbo);
 				glBindBuffer(GL_ARRAY_BUFFER, vbo);
-				const int32 vertexBufferSize = tempData.vertexCount * sizeof(VertexData);
+				const int32_t vertexBufferSize = tempData.vertexCount * sizeof(VertexData);
 				glBufferData(GL_ARRAY_BUFFER, vertexBufferSize, tempData.vertexData.buffer, GL_STATIC_DRAW);
 
 				glEnableVertexAttribArray(0);
-				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-			});
+				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0); });
 
 		glBindVertexArray(0);
 	}
@@ -268,12 +295,13 @@ namespace LKT
 		const float spawnInterval = 1.0f / static_cast<float>(commonParticleData.rate);
 		spawnAccumulator += deltaTime;
 
-		while (spawnAccumulator >= spawnInterval) {
+		while (spawnAccumulator >= spawnInterval)
+		{
 			CreateCPUParticle(particleDataCPU.instancesCount);
 			spawnAccumulator -= spawnInterval;
 		}
 
-		#pragma omp parallel for
+#pragma omp parallel for
 		for (int32_t i = 0; i < particleDataCPU.instancesCount; ++i)
 		{
 			particleDataCPU.lifetime[i] -= deltaTime;
@@ -284,7 +312,7 @@ namespace LKT
 			}
 			else
 			{
-				particleDataCPU.position[i] += commonParticleData.speed * particleDataCPU.velocity[i] * deltaTime;				
+				particleDataCPU.position[i] += commonParticleData.speed * particleDataCPU.velocity[i] * deltaTime;
 			}
 		}
 	}

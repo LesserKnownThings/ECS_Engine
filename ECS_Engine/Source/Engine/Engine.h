@@ -1,13 +1,13 @@
 #pragma once
 
-#include "Math/Numerals.h"
+#include <cstdint>
 
 namespace LKT
 {
 	class InputSystem;
 	class OpenGLSystem;
 
-	constexpr int32 FRAME_RATE = 16; // 60 fps
+	constexpr int32_t FRAME_RATE = 16; // 60 fps
 	constexpr float MAX_DELTA = .016f;
 
 	class Engine

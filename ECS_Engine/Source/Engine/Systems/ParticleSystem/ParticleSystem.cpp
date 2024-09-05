@@ -10,7 +10,7 @@ namespace LKT
 	{
 		TaskManagerSystem::Get().RemoveTask(this);
 
-		for (ParticleEmitter* emitter : emitters)
+		for (ParticleEmitter *emitter : emitters)
 		{
 			delete emitter;
 		}
@@ -23,7 +23,7 @@ namespace LKT
 		TaskManagerSystem::Get().RegisterTask(this, &ParticleSystem::Render, 0, RENDER_HANDLE);
 		TaskManagerSystem::Get().RegisterTask(this, &ParticleSystem::Simulate);
 
-		//TODO For testing only, will remove this once emitters can be created from UI
+		// TODO For testing only, will remove this once emitters can be created from UI
 		CreateEmitter();
 	}
 
@@ -34,7 +34,7 @@ namespace LKT
 			ShaderManager::Get().ActivateShader(computeShaderName);
 		}
 
-		for (ParticleEmitter* emitter : emitters)
+		for (ParticleEmitter *emitter : emitters)
 		{
 			emitter->Simulate(deltaTime);
 		}
@@ -52,15 +52,51 @@ namespace LKT
 			break;
 		}
 
-		for (ParticleEmitter* emitter : emitters)
+		for (ParticleEmitter *emitter : emitters)
 		{
 			emitter->Render();
 		}
 	}
 
+	bool ParticleSystem::Serialize(std::ostream &outStream) const
+	{
+		bool success = true;
+
+		outStream.write(reinterpret_cast<const char *>(&simType), sizeof(EParticleSimType));
+
+		const int32_t emittersCount = emitters.size();
+
+		outStream.write(reinterpret_cast<const char *>(&emittersCount), sizeof(int32_t));
+
+		for (const ParticleEmitter *pm : emitters)
+		{
+			success &= pm->Serialize(outStream);
+		}
+
+		return success;
+	}
+
+	bool ParticleSystem::Deserialize(std::ifstream &inStream)
+	{
+		bool success = true;
+
+		inStream.read(reinterpret_cast<char *>(&simType), sizeof(EParticleSimType));
+
+		int32_t emittersCount = 0;
+		inStream.read(reinterpret_cast<char *>(&emittersCount), sizeof(int32_t));
+
+		for (int32_t i = 0; i < emittersCount; ++i)
+		{
+			CreateEmitter();
+			emitters[i]->Deserialize(inStream);
+		}
+
+		return success;
+	}
+
 	void ParticleSystem::CreateEmitter()
 	{
-		ParticleEmitter* emitter = new ParticleEmitter(simType);
+		ParticleEmitter *emitter = new ParticleEmitter(simType);
 		emitters.push_back(emitter);
 	}
 }

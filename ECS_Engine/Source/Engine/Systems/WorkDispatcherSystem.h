@@ -1,9 +1,8 @@
 #pragma once
 
-#include "../Math/Numerals.h"
-
 #include <atomic>
 #include <condition_variable>
+#include <cstdint>
 #include <functional>
 #include <mutex>
 #include <queue>
@@ -12,7 +11,7 @@
 
 namespace LKT
 {
-	constexpr int32 MAX_THREAD_WORKLOAD = 5000;
+	constexpr int32_t MAX_THREAD_WORKLOAD = 5000;
 
 	using Job = std::function<void()>;
 

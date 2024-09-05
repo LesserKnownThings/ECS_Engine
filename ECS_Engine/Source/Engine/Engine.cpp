@@ -1,195 +1,205 @@
 #include "Engine.h"
-#include "EntityManager.h"
-#include "SDL.h"
-#include "Systems/InputSystem/InputManagerSystem.h"
-#include "Systems/MeshLoadingSystem.h"
-#include "Systems/OpenGLSystem.h"
-#include "Systems/ShaderSystem/ShaderManager.h"
-#include "Systems/TaskManagerSystem.h"
-#include "UI/UIManager.h"
+
+#include <unistd.h>
 
 #include <iostream>
 
-#include "Systems/ResourceManagerSystem.h"
-#include "Systems/TransformComponent.h"
-#include "Systems/RenderComponent.h"
-#include "Systems/TransformSystem.h"
-#include "Systems/Random.h"
-#include "Systems/MeshLoadingSystem.h"
 #include "Assets/Texture.h"
+#include "EntityManager.h"
+#include "SDL/SDL.h"
+#include "SDL/SDL_mouse.h"
+#include "Systems/AssetManager/AssetManager.h"
 #include "Systems/AssetManager/LazyAssetPtr.h"
+#include "Systems/InputSystem/InputManagerSystem.h"
+#include "Systems/MeshLoadingSystem.h"
+#include "Systems/OpenGLSystem.h"
+#include "Systems/Random.h"
+#include "Systems/RenderComponent.h"
+#include "Systems/ResourceManagerSystem.h"
+#include "Systems/ShaderSystem/ShaderManager.h"
+#include "Systems/TaskManagerSystem.h"
+#include "Systems/TransformComponent.h"
+#include "Systems/TransformSystem.h"
+#include "UI/UIManager.h"
+#include "BuildMacros.h"
 
 namespace LKT
 {
-	namespace
-	{
-		static void CheckSDLInit(Uint32 flags, const char* subsystem)
-		{
-			if (SDL_Init(flags) != 0)
-			{
-				printf("SDL_Init %s Error: %s\n", subsystem, SDL_GetError());
-			}
-			else
-			{
-				printf("%s initialized successfully.\n", subsystem);
-				SDL_Quit();
-			}
-		}
-	}
+    namespace
+    {
+        static void CheckSDLInit(uint32_t flags, const char *subsystem)
+        {
+            if (SDL_Init(flags) != 0)
+            {
+                printf("SDL_Init %s Error: %s\n", subsystem, SDL_GetError());
+            }
+            else
+            {
+                printf("%s initialized successfully.\n", subsystem);
+                SDL_Quit();
+            }
+        }
+    } // namespace
 
-	const Engine* Engine::instance = nullptr;
+    const Engine *Engine::instance = nullptr;
 
-	Engine::Engine()
-	{
-		instance = this;
+    Engine::Engine()
+    {
+        instance = this;
 
-		InitializeEngine();
-	}
+        InitializeEngine();
+    }
 
-	const Engine* Engine::Get()
-	{
-		return instance;
-	}
+    const Engine *Engine::Get()
+    {
+        return instance;
+    }
 
-	void Engine::RunEngine()
-	{
-		uint32 currentTicks = SDL_GetTicks();
+    void Engine::RunEngine()
+    {
+        uint32_t currentTicks = SDL_GetTicks();
 
-		while (isRunning)
-		{
-			uint32 newTicks = SDL_GetTicks();
+        while (isRunning)
+        {
+            uint32_t newTicks = SDL_GetTicks();
 
-			deltaTime = (newTicks - currentTicks) / 1000.0f;
+            deltaTime = (newTicks - currentTicks) / 1000.0f;
 
-			if (deltaTime > MAX_DELTA)
-				deltaTime = MAX_DELTA;
+            if (deltaTime > MAX_DELTA)
+                deltaTime = MAX_DELTA;
 
-			currentTicks = newTicks;
+            currentTicks = newTicks;
 
-			uint32 frameStart = SDL_GetTicks();
+            uint32_t frameStart = SDL_GetTicks();
 
-			HandleSystems();
+            HandleSystems();
 
-			uint32 frameDuration = SDL_GetTicks() - frameStart;
+            uint32_t frameDuration = SDL_GetTicks() - frameStart;
 
-			if (FRAME_RATE > frameDuration)
-			{
-				SDL_Delay(FRAME_RATE);
-			}
-		}
-	}
+            if (FRAME_RATE > frameDuration)
+            {
+                SDL_Delay(FRAME_RATE);
+            }
+        }
+    }
 
-	void Engine::InitializeEngine()
-	{
-		if (InitializeEverything())
-		{
-			InitializeMisc();
-			LoadShaders();
+    void Engine::InitializeEngine()
+    {
+        if (InitializeEverything())
+        {
+            InitializeMisc();
+            LoadShaders();
 
-			isRunning = true;
-			RunEngine();
-			UninitializeEngine();
-		}
-	}
+            isRunning = true;
+            RunEngine();
+            UninitializeEngine();
+        }
+    }
 
-	bool Engine::InitializeEverything()
-	{
-		return InitializeSDL() && InitializeOpenGL();
-	}
+    bool Engine::InitializeEverything()
+    {
+        return InitializeSDL() && InitializeOpenGL();
+    }
 
-	bool Engine::InitializeSDL()
-	{
-		if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
-		{
-			LKT::CheckSDLInit(SDL_INIT_TIMER, "TIMER");
-			LKT::CheckSDLInit(SDL_INIT_AUDIO, "AUDIO");
-			LKT::CheckSDLInit(SDL_INIT_VIDEO, "VIDEO");
-			LKT::CheckSDLInit(SDL_INIT_JOYSTICK, "JOYSTICK");
-			LKT::CheckSDLInit(SDL_INIT_HAPTIC, "HAPTIC");
-			LKT::CheckSDLInit(SDL_INIT_GAMECONTROLLER, "GAMECONTROLLER");
-			LKT::CheckSDLInit(SDL_INIT_EVENTS, "EVENTS");
+    bool Engine::InitializeSDL()
+    {
+        if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS) == 0)
+        {
+            // LKT::CheckSDLInit(SDL_INIT_TIMER, "TIMER");
+            // LKT::CheckSDLInit(SDL_INIT_AUDIO, "AUDIO");
+            LKT::CheckSDLInit(SDL_INIT_VIDEO, "VIDEO");
+            // LKT::CheckSDLInit(SDL_INIT_JOYSTICK, "JOYSTICK");
+            // LKT::CheckSDLInit(SDL_INIT_HAPTIC, "HAPTIC");
+            // LKT::CheckSDLInit(SDL_INIT_GAMECONTROLLER, "GAMECONTROLLER");
+            LKT::CheckSDLInit(SDL_INIT_EVENTS, "EVENTS");
 
-			return false;
-		}
+            return false;
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	bool Engine::InitializeOpenGL()
-	{
-		return OpenGLSystem::Get().InitializeSystem(640, 480);
-	}
+    bool Engine::InitializeOpenGL()
+    {
+        return OpenGLSystem::Get().InitializeSystem(1920, 1080);
+    }
 
-	void Engine::InitializeUI()
-	{
-		UIManager::Get().InitializeEditorUI();
-	}
+    void Engine::InitializeUI()
+    {
+        UIManager::Get().InitializeUI();
+    }
 
-	void Engine::InitializeMisc()
-	{
-		InitializeUI();
+    void Engine::InitializeMisc()
+    {
+        InitializeUI();
 
-		InputManagerSystem::Get().onCloseAppDelegate.Bind(this, &Engine::HandleCloseEngine);
+#if EDITOR_ONLY
+        // This builds the editor asset registry, for project asset registry use the LazyAssetPtr instead
+        AssetManager::Get().BuildAssetRegistry();
+#endif
 
-		LazyAssetPtr<Texture> test("Data/restaurantbits_texture.png");
-		Texture* text = test.LoadAsset();
+        InputManagerSystem::Get().onCloseAppDelegate.Bind(this, &Engine::HandleCloseEngine);
 
-		int32_t entCount = 1;
+        /*
+                LazyAssetPtr<Texture> test("Data/restaurantbits_texture.png");
+                Texture *text = test.LoadAsset();
 
-		EntityResource res{ entCount };
-		glm::vec3* position = (glm::vec3*)malloc(sizeof(glm::vec3) * entCount);
-		glm::vec3* rot = (glm::vec3*)malloc(sizeof(glm::vec3) * entCount);
-		glm::vec3* scale = (glm::vec3*)malloc(sizeof(glm::vec3) * entCount);
-		
-		uint32_t* textures = (uint32_t*)malloc(sizeof(uint32_t) * entCount);
+                int32_t entCount = 1;
 
-		for (int32_t i = 0; i < entCount; ++i)
-		{
-			position[i] = glm::vec3(Random::RandomRange(-250.0f, 250.0f), Random::RandomRange(-250.0f, 250.0f), Random::RandomRange(-250.0f, 250.0f));
+                EntityResource res{entCount};
+                glm::vec3 *position = (glm::vec3 *)malloc(sizeof(glm::vec3) * entCount);
+                glm::vec3 *rot = (glm::vec3 *)malloc(sizeof(glm::vec3) * entCount);
+                glm::vec3 *scale = (glm::vec3 *)malloc(sizeof(glm::vec3) * entCount);
 
-			const float _scale = Random::RandomRange(10.0f, 20.0f);
+                uint32_t *textures = (uint32_t *)malloc(sizeof(uint32_t) * entCount);
 
-			scale[i] = glm::vec3(_scale, _scale, _scale);
+                for (int32_t i = 0; i < entCount; ++i)
+                {
+                    position[i] = glm::vec3(Random::RandomRange(-250.0f, 250.0f), Random::RandomRange(-250.0f, 250.0f),
+                                            Random::RandomRange(-250.0f, 250.0f));
 
-			rot[i] = glm::vec3(90.0f, 0.0f, 0.0f);
+                    const float _scale = Random::RandomRange(10.0f, 20.0f);
 
-			textures[i] = text->GetTextureID();
-		}
-		
-		res.AddComponentResources<TransformComponentResource, RenderComponentResource>(
-			TransformComponentResource{ entCount, nullptr, nullptr, nullptr },
-			RenderComponentResource{ entCount, textures }
-		);
+                    scale[i] = glm::vec3(_scale, _scale, _scale);
 
-		ResourceManagerSystem::Get().SpawnEntities<TransformComponentResource, RenderComponentResource>(res);
+                    rot[i] = glm::vec3(90.0f, 0.0f, 0.0f);
 
-		const std::string meshPath = "Data/CoolMesh.obj";
-		MeshLoadingSystem::Get().ImportMesh(meshPath);
+                    textures[i] = text->GetTextureID();
+                }
 
-		for (int32_t i = 0; i < res.entitiesCount; ++i)
-		{
-			OpenGLSystem::Get().SetComponentMesh(meshPath, res.entities[i]);
-		}
-	}
+                res.AddComponentResources<TransformComponentResource, RenderComponentResource>(
+                    TransformComponentResource{entCount}, RenderComponentResource{entCount, textures});
 
-	void Engine::UninitializeEngine()
-	{
-		UIManager::Get().UninitializeEditorUI();
-	}
+                ResourceManagerSystem::Get().SpawnEntities<TransformComponentResource, RenderComponentResource>(res);
 
-	void Engine::LoadShaders()
-	{
-		ShaderManager::Get().LoadEngineShaders();		
-	}
+                const std::string meshPath = "Data/CoolMesh.obj";
+                MeshLoadingSystem::Get().ImportMesh(meshPath);
 
-	void Engine::HandleSystems()
-	{
-		TaskManagerSystem::Get().ExecuteTasks(std::nullopt, deltaTime);
-		OpenGLSystem::Get().Render();
-	}
+                for (int32_t i = 0; i < res.entitiesCount; ++i)
+                {
+                    OpenGLSystem::Get().SetComponentMesh(meshPath, res.entities[i]);
+                }
+                */
+    }
 
-	void Engine::HandleCloseEngine()
-	{
-		isRunning = false;
-	}
-}
+    void Engine::UninitializeEngine()
+    {
+        UIManager::Get().UninitializeUI();
+    }
+
+    void Engine::LoadShaders()
+    {
+        ShaderManager::Get().LoadEngineShaders();
+    }
+
+    void Engine::HandleSystems()
+    {
+        TaskManagerSystem::Get().ExecuteTasks(std::nullopt, deltaTime);
+        OpenGLSystem::Get().Render();
+    }
+
+    void Engine::HandleCloseEngine()
+    {
+        isRunning = false;
+    }
+} // namespace LKT

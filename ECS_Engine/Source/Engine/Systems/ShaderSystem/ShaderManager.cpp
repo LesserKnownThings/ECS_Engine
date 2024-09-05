@@ -1,7 +1,7 @@
 #include "ShaderManager.h"
 #include "FileHelper.h"
 #include "ShaderProgram.h"
-#include "glew.h"
+#include "glew/glew.h"
 #include "glm/gtc/type_ptr.hpp"
 
 #include <fstream>
@@ -15,20 +15,20 @@ namespace LKT
 
 	namespace
 	{
-		static void RemoveExtension(std::string& from)
+		static void RemoveExtension(std::string &from)
 		{
 			fs::path p(from);
-			from = p.stem().string();		
+			from = p.stem().string();
 		}
 
-		static void GetPathEnding(std::string& path)
+		static void GetPathEnding(std::string &path)
 		{
 			fs::path p(path);
 			path = p.filename().string();
 		}
 	}
 
-	ShaderManager& ShaderManager::Get()
+	ShaderManager &ShaderManager::Get()
 	{
 		static ShaderManager instance;
 		return instance;
@@ -36,7 +36,7 @@ namespace LKT
 
 	ShaderManager::~ShaderManager()
 	{
-		for (const auto& it : engineShaders)
+		for (const auto &it : engineShaders)
 		{
 			delete it.second;
 		}
@@ -44,7 +44,7 @@ namespace LKT
 		engineShaders.clear();
 	}
 
-	void ShaderManager::ActivateShader(const std::string& shaderName)
+	void ShaderManager::ActivateShader(const std::string &shaderName)
 	{
 		const auto it = engineShaders.find(shaderName);
 
@@ -58,17 +58,17 @@ namespace LKT
 		}
 	}
 
-	void ShaderManager::SetFloat(const std::string& name, float value)
+	void ShaderManager::SetFloat(const std::string &name, float value)
 	{
-		if (ShaderProgram* sp = GetActiveShader())
+		if (ShaderProgram *sp = GetActiveShader())
 		{
 			sp->SetFloat(name, value);
 		}
 	}
 
-	void ShaderManager::SetMat4f(const std::string& name, const glm::mat4& value)
+	void ShaderManager::SetMat4f(const std::string &name, const glm::mat4 &value)
 	{
-		if (ShaderProgram* sp = GetActiveShader())
+		if (ShaderProgram *sp = GetActiveShader())
 		{
 			sp->SetMat4f(name, glm::value_ptr(value));
 		}
@@ -86,7 +86,7 @@ namespace LKT
 		return 0;
 	}
 
-	ShaderProgram* ShaderManager::GetActiveShader() const
+	ShaderProgram *ShaderManager::GetActiveShader() const
 	{
 		const auto it = engineShaders.find(activeShader);
 
@@ -104,13 +104,13 @@ namespace LKT
 
 		FileHelper::GetFilesFromDirectory(engineShadersPath, shaderFiles);
 
-		//Compute shaders are single files, so they're in the upper folder section
-		for (const std::string& file : shaderFiles)
+		// Compute shaders are single files, so they're in the upper folder section
+		for (const std::string &file : shaderFiles)
 		{
 			std::string noExtensionFile = file;
 			LKT::RemoveExtension(noExtensionFile);
-			
-			ShaderProgram* sp = new ShaderProgram();
+
+			ShaderProgram *sp = new ShaderProgram();
 			sp->CompileComputeShader(file, noExtensionFile);
 
 			engineShaders[noExtensionFile] = sp;
@@ -120,7 +120,7 @@ namespace LKT
 
 		FileHelper::GetDirectoriesFromDirectory(engineShadersPath, shaderFiles);
 
-		for (const std::string& directory : shaderFiles)
+		for (const std::string &directory : shaderFiles)
 		{
 			std::vector<std::string> shaders;
 			FileHelper::GetFilesFromDirectory(directory, shaders);
@@ -128,10 +128,26 @@ namespace LKT
 			std::string shaderName = directory;
 			LKT::GetPathEnding(shaderName);
 
+			std::string vertexShaderPath, fragmentShaderPath;
+
+			for (const std::string &shader : shaders)
+			{
+				const std::string ext = std::filesystem::path(shader).extension().string();
+
+				if (ext == ".fs")
+				{
+					fragmentShaderPath = shader;
+				}
+				else if (ext == ".vs")
+				{
+					vertexShaderPath = shader;
+				}
+			}
+
 			if (shaders.size() > 1)
 			{
-				ShaderProgram* sp = new ShaderProgram();
-				sp->CompileShader(shaders[1], shaders[0], shaderName);
+				ShaderProgram *sp = new ShaderProgram();
+				sp->CompileShader(vertexShaderPath, fragmentShaderPath, shaderName);
 				engineShaders[shaderName] = sp;
 			}
 		}

@@ -1,13 +1,13 @@
 #pragma once
 
 #include "Delegate.h"
-#include "Math/Numerals.h"
 #include "glm/glm.hpp"
-#include "SDL_events.h"
-#include "SDL_keycode.h"
-#include "SDL_mouse.h"
+#include "SDL/SDL_events.h"
+#include "SDL/SDL_keycode.h"
+#include "SDL/SDL_mouse.h"
 #include "UniqueID.h"
 
+#include <cstdint>
 #include <unordered_map>
 
 namespace LKT
@@ -28,7 +28,7 @@ namespace LKT
 		float GetHorizontalAxis();
 		float GetVerticalAxis();
 
-		const glm::ivec2& GetMouseDelta() const { return mouseDelta; }
+		const glm::vec2& GetMouseDelta() const { return mouseDelta; }
 
 		OnCloseApp onCloseAppDelegate;
 		OnWindowResized onWindowResized;
@@ -47,7 +47,7 @@ namespace LKT
 		void RunEvents();
 
 		std::unordered_map<SDL_Keycode, float> mappedKeys;
-		glm::ivec2 mouseDelta;
+		glm::vec2 mouseDelta;
 
 		uint32_t pressedMouseButtons = 0;
 	};
