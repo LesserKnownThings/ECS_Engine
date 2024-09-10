@@ -1,4 +1,5 @@
 #include "RenderComponent.h"
+#include "MeshLoadingSystem.h"
 
 #include <cstring>
 

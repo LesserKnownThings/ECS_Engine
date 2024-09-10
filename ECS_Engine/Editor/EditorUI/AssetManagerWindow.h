@@ -14,24 +14,26 @@ namespace LKT
         float columnX = 100.0f;
         float columnY = 100.0f;
 
-        float textureX = 65.0f;
-        float textureY = 65.0f;
+        float textureX = 50.0f;
+        float textureY = 50.0f;
 
-        float paddingX = 10.0f;
-        float paddingY = 10.0f;
+        float textOffset = 5.0f;
 
-        float marginX = 6.0f;
-        float marginY = 6.0f;
+        float cellPaddingX = 10.0f;
+        float cellPaddingY = 10.0f;
     };
 
     class AssetManagerWindow : public EngineWindow
     {
-    protected:
+    public:
         void Initialize(const std::string &windowName) override;
         void Uninitialize() override;
+
+    protected:
         void RenderContent() override;
 
     private:
+        void DrawCommands();
         void BrowseDirectory(const std::string &contentFolder);
 
         void BrowseDirectory();
@@ -40,7 +42,8 @@ namespace LKT
         void DrawLeaf(const std::filesystem::path &path);
         void DrawSelectableItem(const std::filesystem::directory_entry &entry);
 
-        void HandleMouseButtonReleased(const SDL_MouseButtonEvent& mouseEvent);
+        void HandleMouseButtonReleased(const SDL_MouseButtonEvent &mouseEvent);
+        void HandleFileDialogClosed(const std::string &filePath);
 
         const std::string defaultDirectory = "Content";
         std::string currentSelection;

@@ -17,24 +17,25 @@ namespace LKT
 		~ParticleSystem();
 		ParticleSystem();
 
-		void Simulate(float deltaTime);
-		void Render();
-
 	protected:
-		bool Serialize(std::ostream &outStream) const override;
+		bool Serialize(std::ofstream &outStream) const override;
 		bool Deserialize(std::ifstream &inStream) override;
 
 	private:
+		void Simulate(float deltaTime);
+		void Render();
+
 		std::vector<ParticleEmitter *> emitters;
 
 		void CreateEmitter();
 
-		EParticleSimType simType = GPU;
+		EParticleSimType simType = CPU;
 
 		std::string shaderNameGPU = "Billboard_Unlit_GPU";
 		std::string shaderNameCPU = "Billboard_Unlit_CPU";
 		std::string computeShaderName = "Particles";
 
 		friend class ParticleSystemAsset;
+		friend class ParticleSystemWindow;
 	};
 }

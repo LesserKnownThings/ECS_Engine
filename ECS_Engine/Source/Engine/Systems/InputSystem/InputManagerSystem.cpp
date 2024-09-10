@@ -16,7 +16,7 @@ namespace LKT
 
 	InputManagerSystem::~InputManagerSystem()
 	{
-		TaskManagerSystem::Get().RemoveTask(this);
+		TaskManagerSystem::Get().RemoveAllTasks(this);
 	}
 
 	InputManagerSystem::InputManagerSystem()
@@ -33,6 +33,11 @@ namespace LKT
 
 	void InputManagerSystem::RunEvents()
 	{
+		if (isBlocked)
+		{
+			return;
+		}
+
 		SDL_Event e;
 		while (SDL_PollEvent(&e))
 		{

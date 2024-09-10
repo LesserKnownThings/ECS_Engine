@@ -14,18 +14,18 @@ namespace LKT
 		name = windowName;
 
 		TaskManagerSystem::Get().RegisterTask(this, &EditorMainWindow::Render, INT32_MAX, RENDER_HANDLE);
+
+		windowFlags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
 	}
 
 	void EditorMainWindow::Uninitialize()
 	{
-		TaskManagerSystem::Get().RemoveTask(this);
+		TaskManagerSystem::Get().RemoveAllTasks(this);
 		EngineWindow::Uninitialize();
 	}
 
 	void EditorMainWindow::Render()
 	{
-		ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
-
 		const ImGuiViewport *main_viewport = ImGui::GetMainViewport();
 
 		ImGui::SetNextWindowPos(ImVec2(0, 0));
@@ -33,15 +33,12 @@ namespace LKT
 
 		ImGui::SetNextWindowBgAlpha(0.0f);
 
-		if (ImGui::Begin(name.c_str(), nullptr, window_flags))
-		{
-			const ImVec2 window_size = ImGui::GetContentRegionAvail();
-			ImGuiID dockspaceID = ImGui::GetID("MyDockSpace");
-			ImGui::DockSpace(dockspaceID, window_size, ImGuiDockNodeFlags_PassthruCentralNode);
+		ImGui::Begin(name.c_str(), nullptr, windowFlags);
+		const ImVec2 window_size = ImGui::GetContentRegionAvail();
+		ImGuiID dockspaceID = ImGui::GetID("MainWindowDockSpace");
+		ImGui::DockSpace(dockspaceID, window_size, ImGuiDockNodeFlags_PassthruCentralNode);
 
-			ShowDropdown();
-		}
-
+		ShowDropdown();
 		ImGui::End();
 	}
 

@@ -16,9 +16,11 @@ namespace LKT
 		~Engine() = default;
 		Engine();
 
-		static const Engine* Get();
+		static const Engine *Get();
 
 		float GetDeltaTime() const { return deltaTime; }
+
+		static bool IsPlayMode();
 
 	private:
 		void RunEngine();
@@ -39,8 +41,11 @@ namespace LKT
 		void HandleCloseEngine();
 
 		bool isRunning = false;
+
+		// True when we're in a build or play mode in the editor
+		bool isPlayMode = false;
 		float deltaTime = 0.0f;
 
-		static const Engine* instance;
+		static const Engine *instance;
 	};
 }

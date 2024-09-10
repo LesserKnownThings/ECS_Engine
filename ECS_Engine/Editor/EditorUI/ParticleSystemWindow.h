@@ -1,49 +1,26 @@
 #pragma once
 
-#include "Systems/ParticleSystem/ParticleShapeData.h"
-#include "UI/EngineWindow.h"
-
-#include <functional>
-#include <string>
-#include <unordered_map>
-#include <vector>
+#include "EditorUI/AssetViewerWindow.h"
 
 namespace LKT
 {
-	class ParticleEmitter;
+	class ParticleSystem;
 
-	struct ShapeUIData
-	{
-		ShapeUIData(const std::string &inName, const std::unordered_map<std::string, ShapeDataVariant> &inParams)
-			: shapeName(inName), params(inParams)
-		{
-		}
-
-		std::string shapeName;
-		std::unordered_map<std::string, ShapeDataVariant> params;
-	};
-
-	class ParticleSystemWindow : public EngineWindow
+	class ParticleSystemWindow : public AssetViewerWindow
 	{
 	public:
-		virtual void Initialize(const std::string &inName) override;
-		virtual void Uninitialize() override;
+		~ParticleSystemWindow();
+		ParticleSystemWindow(LazyAssetPtr<Asset> &inAsset);
 
-		virtual void RenderContent() override;
+	protected:
+		void RenderContent() override;
+		void RenderAsset() override;
 
 	private:
-		void DrawAndUpdateParams();
+		void SimulateAsset(float deltaTime);
 
-		std::vector<const char *> items;
-		std::vector<ShapeUIData> data;
+		ParticleSystem *ps;
 
-		int selectedIndex = 0;
-		int previousIndex = -1;
-
-		bool hasDataChanged = false;
-
-		ParticleEmitter *selectedInstance = nullptr;
+		ImVec2 childSize = ImVec2(200, 200);
 	};
-
-	REGISTER_WINDOW(ParticleSystemWindow, "Tools/Particle System")
 }

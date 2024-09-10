@@ -5,7 +5,7 @@
 #if EDITOR_ONLY
 #include "EditorUI/AssetViewerWindow.h"
 #include "EditorUI/EditorMainWindow.h"
-#include "Systems/AssetManager/AssetFactory.h"
+#include "Systems/AssetManager/AssetFactory/AssetFactoryManager.h"
 #include "Systems/AssetManager/AssetManager.h"
 #include "Systems/AssetManager/AssetPath.h"
 #endif
@@ -73,11 +73,6 @@ namespace LKT
 #endif
 	}
 
-	void UIManager::RegisterWindow(const WindowFactoryData &factoryData)
-	{
-		factories[factoryData.windowName] = factoryData;
-	}
-
 	EngineWindow *UIManager::GetWindow(const std::string &windowName)
 	{
 		const auto windowIt = windows.find(windowName);
@@ -105,49 +100,27 @@ namespace LKT
 		return nullptr;
 	}
 
-	EngineWindow *UIManager::GetUniqueWindow(const std::string &windowName)
+#if EDITOR_ONLY
+	void UIManager::RegisterWindow(const WindowFactoryData &factoryData)
 	{
-		const auto it = factories.find(windowName);
+		factories[factoryData.windowName] = factoryData;
+	}
 
-		if (it != factories.end())
+	void UIManager::RequestAssetViewer(const AssetPath &assetPath)
+	{
+		const auto it = uniqueWindows.find(assetPath.fullPath);
+		if (it != uniqueWindows.end())
 		{
-			EngineWindow *newWindow = it->second.factory();
-
-			if (newWindow != nullptr)
-			{
-				const std::string &uniqueWindowName = windowName + "##" + newWindow->GetID().ToString();
-				newWindow->Initialize(uniqueWindowName);
-				windows[uniqueWindowName] = newWindow;
-
-				return newWindow;
-			}
+			it->second->Focus();
+			return;
 		}
 
-		return nullptr;
-	}
-
-	void UIManager::RequestAssetViewer(const std::filesystem::path &assetPath)
-	{
-		auto func = [this](LazyAssetPtr<Asset> &asset)
+		if (AssetViewerWindow *assetViewer = AssetManager::LoadAssetViewer(assetPath))
 		{
-			const AssetPath &path = asset.GetPath();
-
-			AssetFactoryData data;
-			if (AssetFactory::GetFactoryData(path.extension, data))
-			{
-				// Can't use the unique function factory because these windows require an asset reference
-				if (AssetViewerWindow *assetViewer = data.uiFunc(path))
-				{
-					uniqueWindows[assetViewer->GetName()] = assetViewer;
-				}
-			}
-		};
-
-		AssetPath path(assetPath);
-		AssetManager::Get().GetAsset(path, func);
+			uniqueWindows[assetPath.fullPath] = assetViewer;
+		}
 	}
 
-#if EDITOR_ONLY
 	void UIManager::Serialize()
 	{
 		std::ostringstream os;
@@ -179,11 +152,11 @@ namespace LKT
 #endif
 
 	// TODO maybe I should add a task for the GC instead of instantly removing these windows
-	void UIManager::HandleUniqueWindowClosed(const EngineWindow *window)
+	void UIManager::HandleUniqueWindowClosed(const AssetViewerWindow *window)
 	{
 		if (window != nullptr)
 		{
-			const auto it = uniqueWindows.find(window->GetName());
+			const auto it = uniqueWindows.find(window->GetAssetPath().fullPath);
 
 			if (it != uniqueWindows.end())
 			{

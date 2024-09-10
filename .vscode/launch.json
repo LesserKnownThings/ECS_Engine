@@ -1,0 +1,51 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Editor",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/Editor_Build/ECS_Engine",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/Editor_Build",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "setupCommands": 
+            [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "Editor",
+            "miDebuggerPath": "/usr/bin/gdb",  // <-- Path to your debugger
+            "logging": { "engineLogging": true }
+        },
+        {
+            "name": "Game",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/Game_Build/ECS_Engine",
+            "args": [],
+            "stopAtEntry":  false,
+            "cwd": "${workspaceFolder}/Game_Build",
+            "environment": [],
+            "externalConsole": true,
+            "MIMode": "gdb",
+            "setupCommands": 
+            [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "Game",
+            "miDebuggerPath": "/usr/bin/gdb",  // <-- Path to your debugger
+            "logging": { "engineLogging": true }
+        }
+    ]
+}

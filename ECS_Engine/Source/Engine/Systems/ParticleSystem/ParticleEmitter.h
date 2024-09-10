@@ -71,7 +71,7 @@ namespace LKT
 		~ParticleEmitter();
 
 	protected:
-		bool Serialize(std::ostream &outStream) const override;
+		bool Serialize(std::ofstream &outStream) const override;
 		bool Deserialize(std::ifstream &inStream) override;
 
 	private:
@@ -107,7 +107,8 @@ namespace LKT
 
 		ParticleDataCPU particleDataCPU;
 
-		uint32_t vao, ebo, vbo, perIndexVbo, elementsCount, ssbo, initialSsbo;
+		uint32_t elementsCount;
+		uint32_t vao, ebo, vbo, perIndexVbo, ssbo, initialSsbo;
 		glm::mat4 model = glm::mat4(1.0f);
 
 		friend class ParticleSystem;

@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <functional>
 #include <string>
+#include <fstream>
 #include <unordered_map>
 #include <vector>
 
@@ -21,40 +22,70 @@ namespace LKT
 
 	struct VertexData
 	{
-		void* buffer;
+		~VertexData();
 
-		glm::vec3* position;
-		glm::vec3* normal;
-		glm::vec2* uv;
+		VertexData() = default;
+		VertexData(const VertexData &other)
+			: buffer(other.buffer)
+		{
+		}
+
+		VertexData(VertexData &&other)
+			: buffer(std::move(other.buffer))
+		{
+			other.buffer = nullptr;
+		}
+
+		VertexData &operator=(const VertexData &other)
+		{
+			if (&other != this)
+			{
+				buffer = other.buffer;
+			}
+			return *this;
+		}
+
+		void *buffer;
+
+		glm::vec3 *position;
+		glm::vec3 *normal;
+		glm::vec2 *uv;
 	};
 
-	struct DrawData
+	struct MeshData
 	{
-		DrawData() = default;
+		MeshData() = default;
+
+		void Serialize(std::ofstream &outStream) const;
+		void Deserialize(std::ifstream &inStream);
+
+		void ReadBuffer(void *buffer);
+
+		bool IsValid() const { return vertexCount > 0; }
 
 		int32_t vertexCount;
 		int32_t indicesCount;
 
 		VertexData vertexData;
 		std::vector<uint32_t> indices;
+
+		int32_t nameSize;
+		std::string name;
 	};
 
 	class MeshLoadingSystem
 	{
-
 	public:
-		~MeshLoadingSystem();
-		MeshLoadingSystem();
+		~MeshLoadingSystem() = default;
 
-		static MeshLoadingSystem& Get();
+		static MeshLoadingSystem &Get();
 
-		void ImportMesh(const std::string& meshPath);
-		bool GetMeshData(const std::string& meshPath, std::function<void(const DrawData& tempData)> func) const;
+		static bool ImportMesh(const std::string &meshPath, std::vector<MeshData> &outMeshData);
 
 	private:
-		void ProcessNode(aiNode* node, const aiScene* scene, const std::string& path);
-		DrawData ProcessMesh(aiMesh* assimpMesh, const aiScene* scene, const std::string& path);
+		MeshLoadingSystem() = default;
 
-		std::unordered_map<std::string, DrawData> meshes;
+		void ProcessNode(aiNode *node, const aiScene *scene, const std::string &path, std::vector<MeshData> &outMeshData);
+		MeshData ProcessMesh(aiMesh *assimpMesh, const aiScene *scene, const std::string &path);
 	};
 }

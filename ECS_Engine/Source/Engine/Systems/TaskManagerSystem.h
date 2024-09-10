@@ -21,9 +21,9 @@ namespace LKT
 	public:
 		virtual ~ITask() = default;
 		virtual void Execute() {};
-		virtual void ExecuteWithArgs(void* args) {};
+		virtual void ExecuteWithArgs(void *args) {};
 
-		bool operator<(const ITask& other) const
+		bool operator<(const ITask &other) const
 		{
 			if (priority != other.priority)
 			{
@@ -33,7 +33,7 @@ namespace LKT
 			return uniqueID < other.uniqueID;
 		}
 
-		bool operator()(const ITask& lhs, const ITask& rhs) const
+		bool operator()(const ITask &lhs, const ITask &rhs) const
 		{
 			if (lhs.priority != rhs.priority)
 			{
@@ -58,29 +58,31 @@ namespace LKT
 		friend class TaskManagerSystem;
 	};
 
-	template<class T>
+	template <class T>
 	class MemberTask : public ITask
 	{
 	public:
-		MemberTask(T* obj, int32_t priority, int32_t handle = -1)
+		MemberTask(T *obj, int32_t priority, int32_t handle = -1)
 			: ITask(priority, handle), owner(obj)
-		{}
+		{
+		}
 
 	protected:
-		T* owner = nullptr;
+		T *owner = nullptr;
 
 		friend class TaskManagerSystem;
 	};
 
-	template<typename T>
+	template <typename T>
 	class MemberFunctionTask : public MemberTask<T>
 	{
 	public:
 		using MemberFunc = void (T::*)();
 
-		MemberFunctionTask(T* obj, MemberFunc func, int32_t priority, int32_t handle = -1)
+		MemberFunctionTask(T *obj, MemberFunc func, int32_t priority, int32_t handle = -1)
 			: MemberTask<T>(obj, priority, handle), ownerFunc(func)
-		{}
+		{
+		}
 
 		void Execute() override
 		{
@@ -91,21 +93,19 @@ namespace LKT
 		MemberFunc ownerFunc;
 	};
 
-	template<typename T, typename... Args>
+	template <typename T, typename... Args>
 	class MemberFunctionTaskWithArgs : public MemberTask<T>
 	{
 	public:
 		using MemberFuncArgs = void (T::*)(Args...);
 
-		MemberFunctionTaskWithArgs(T* obj, MemberFuncArgs func, int32_t priority, int32_t handle = -1)
+		MemberFunctionTaskWithArgs(T *obj, MemberFuncArgs func, int32_t priority, int32_t handle = -1)
 			: MemberTask<T>(obj, priority, handle), ownerFunc(func) {}
 
-		void ExecuteWithArgs(void* args) override
+		void ExecuteWithArgs(void *args) override
 		{
 			std::apply([this](Args... unpackedArgs)
-				{
-					(this->owner->*ownerFunc)(unpackedArgs...);
-				}, *reinterpret_cast<std::tuple<Args...>*>(args));
+					   { (this->owner->*ownerFunc)(unpackedArgs...); }, *reinterpret_cast<std::tuple<Args...> *>(args));
 		}
 
 	private:
@@ -115,32 +115,21 @@ namespace LKT
 	class TaskManagerSystem
 	{
 	public:
-		static TaskManagerSystem& Get();
+		static TaskManagerSystem &Get();
 
 		void ExecuteTasks(int32_t handle = -1);
 
-		template<typename T>
-		void RemoveTask(T* obj)
+		template <typename T>
+		void RemoveAllTasks(T *obj)
 		{
-			auto it = std::find_if(tasks.begin(), tasks.end(), [obj](const ITask* task)
-				{
-					if (const MemberTask<T>* memberTask = reinterpret_cast<const MemberTask<T>*>(task))
-					{
-						return memberTask->owner == obj;
-					}
-					return false;
-				});
-
-			if (it != tasks.end())
-			{
-				(*it)->isAlive = false;
-			}
+			while (RemoveTask(obj))
+				;
 		}
 
-		template<typename... Args>
+		template <typename... Args>
 		void ExecuteTasks(std::optional<int32_t> handle = std::nullopt, Args... args);
 
-		//For registering lambdas, need to fix the implementation
+		// For registering lambdas, need to fix the implementation
 		/*template<class T>
 		UniqueID RegisterTask(ETaskType taskType, int32_t priority)
 		{
@@ -181,32 +170,52 @@ namespace LKT
 			return newTask->uniqueID;
 		}*/
 
-		template<class T>
-		void RegisterTask(T* obj, void (T::* func)(), int32_t priority = 0, int32_t handle = -1)
+		template <class T>
+		void RegisterTask(T *obj, void (T::*func)(), int32_t priority = 0, int32_t handle = -1)
 		{
-			MemberFunctionTask<T>* newTask = new MemberFunctionTask<T>(obj, func, priority, handle);
+			MemberFunctionTask<T> *newTask = new MemberFunctionTask<T>(obj, func, priority, handle);
 			tasks.emplace(newTask);
 		}
 
-		template<class T, typename... Args>
-		void RegisterTask(T* obj, void (T::* func)(Args...), int32_t priority = 0, int32_t handle = -1)
+		template <class T, typename... Args>
+		void RegisterTask(T *obj, void (T::*func)(Args...), int32_t priority = 0, int32_t handle = -1)
 		{
-			MemberFunctionTaskWithArgs<T, Args...>* newTask = new MemberFunctionTaskWithArgs<T, Args...>(obj, func, priority, handle);
+			MemberFunctionTaskWithArgs<T, Args...> *newTask = new MemberFunctionTaskWithArgs<T, Args...>(obj, func, priority, handle);
 			tasks.emplace(newTask);
 		}
 
 	private:
+		template <typename T>
+		bool RemoveTask(T *obj)
+		{
+			auto it = std::find_if(tasks.begin(), tasks.end(), [obj](const ITask *task)
+								   {
+					if (const MemberTask<T>* memberTask = reinterpret_cast<const MemberTask<T>*>(task))
+					{
+						return memberTask->owner == obj && memberTask->isAlive;
+					}
+					return false; });
+
+			if (it != tasks.end())
+			{
+				(*it)->isAlive = false;
+				return true;
+			}
+
+			return false;
+		}
+
 		TaskManagerSystem() = default;
 
-		std::set<ITask*> tasks;
+		std::set<ITask *> tasks;
 	};
 
-	template<typename ...Args>
-	inline void TaskManagerSystem::ExecuteTasks(std::optional<int32_t> handle, Args ...args)
+	template <typename... Args>
+	inline void TaskManagerSystem::ExecuteTasks(std::optional<int32_t> handle, Args... args)
 	{
 		for (auto it = tasks.begin(); it != tasks.end();)
 		{
-			ITask* task = *it;
+			ITask *task = *it;
 
 			if (handle != std::nullopt && task->customHandle != handle)
 			{

@@ -8,10 +8,15 @@ namespace LKT
 
     class ParticleSystemAsset : public Asset
     {
-    protected:
-        virtual void LoadAsset(const AssetPath &inPath) override;
+    public:
+        ParticleSystem *GetParticleSystem() const { return particleSystem; }
+        void UnloadAsset() override;
 
-        bool Serialize(std::ostream &outStream) const override;
+    protected:
+        // It's empty since this asset saves everything to the binary instead of the metadata portion
+        void LoadAsset(void *buffer) override {}
+
+        bool Serialize(std::ofstream &outStream) const override;
         bool Deserialize(std::ifstream &inStream) override;
 
     private:

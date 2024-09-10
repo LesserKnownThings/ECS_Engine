@@ -2,6 +2,8 @@
 
 #include "UniqueID.h"
 
+#include <string>
+
 namespace LKT
 {
 	/// <summary>
@@ -16,16 +18,25 @@ namespace LKT
 		virtual ~Object();
 		Object();
 
-		const UniqueID& GetID() const { return id; }
+		const UniqueID &GetID() const { return id; }
 
-		bool operator()(const Object* lhs, const Object* rhs) const
+		bool operator()(const Object *lhs, const Object *rhs) const
 		{
 			return lhs->id == rhs->id;
 		}
 
-		void OverrideID(const UniqueID& inID);
+		void OverrideID(const UniqueID &inID);
 
 	private:
 		UniqueID id;
 	};
 }
+
+template <>
+struct std::hash<LKT::Object>
+{
+	size_t operator()(const LKT::Object &obj) const
+	{
+		return std::hash<LKT::UniqueID>{}(obj.GetID());
+	}
+};

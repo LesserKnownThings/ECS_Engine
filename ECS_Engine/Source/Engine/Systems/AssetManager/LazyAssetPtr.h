@@ -1,8 +1,8 @@
 #pragma once
 
+#include "Asset.h"
+#include "AssetManager.h"
 #include "AssetPath.h"
-#include "AssetFactory.h"
-#include "Object.h"
 
 #include <iostream>
 #include <string>
@@ -39,6 +39,7 @@ namespace LKT
 
 				if (refCounter->counter <= 0)
 				{
+					ptr->UnloadAsset();
 					delete ptr;
 				}
 
@@ -68,10 +69,12 @@ namespace LKT
 		// Copy operator will create a weak reference just like the copy construct!
 		LazyAssetPtr &operator=(const LazyAssetPtr &other) = default;
 
-		LazyAssetPtr<T> &StrongRef()
+		// Creates a strong reference and loads the asset if it wasn't already
+		LazyAssetPtr<T> &StrongRef() const
 		{
 			refCounter->Increment();
 			LazyAssetPtr<T> *strongRefPtr = new LazyAssetPtr<T>(*this);
+			strongRefPtr->LoadAsset();
 			strongRefPtr->isStrong = true;
 			return *strongRefPtr;
 		}
@@ -109,7 +112,7 @@ namespace LKT
 	{
 		if (ptr == nullptr)
 		{
-			ptr = AssetFactory::Get().LoadAsset<T>(path);
+			ptr = AssetManager::LoadAsset(path);
 		}
 	}
 

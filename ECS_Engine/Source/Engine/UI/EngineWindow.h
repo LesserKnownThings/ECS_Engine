@@ -1,6 +1,8 @@
 #pragma once
 
+#include "Delegate.h"
 #include "FileHelper.h"
+#include "imgui/imgui.h"
 #include "Object.h"
 #include "UIManager.h"
 
@@ -8,6 +10,10 @@
 
 namespace LKT
 {
+	constexpr uint8_t WINDOW_FOCUS = 0x001;
+	constexpr uint8_t WINDOW_SUPPORT_RENDER_BUFFER = 0x002;
+	constexpr uint8_t WINDOW_SUPPORT_CAMERA = 0x004;
+
 	class EngineWindow : public Object
 	{
 	public:
@@ -18,6 +24,7 @@ namespace LKT
 
 		void Render();
 
+		void GetWindowSize(int32_t &x, int32_t &y) const;
 		bool IsShowing() const { return isShowing; }
 		const std::string &GetName() const { return name; }
 
@@ -26,6 +33,9 @@ namespace LKT
 
 		bool isShowing = true;
 		std::string name;
+
+		uint32_t windowFlags = 0;
+		uint8_t windowCustomFlags = 0;
 	};
 
 #define REGISTER_WINDOW(type, name)                                                   \

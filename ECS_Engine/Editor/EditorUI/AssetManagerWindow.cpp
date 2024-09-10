@@ -1,11 +1,14 @@
 #include "AssetManagerWindow.h"
 #include "imgui/imgui.h"
-#include "Systems/AssetManager/AssetFactory.h"
+#include "Systems/AssetManager/AssetFactory/AssetFactoryManager.h"
 #include "Systems/AssetManager/AssetManager.h"
 #include "Systems/InputSystem/InputManagerSystem.h"
 #include "UI/UIManager.h"
 
+#include "portable-file-dialogs.h"
 #include <filesystem>
+#include <thread>
+#include <future>
 
 namespace fs = std::filesystem;
 
@@ -32,6 +35,8 @@ namespace LKT
         EngineWindow::Initialize(windowName);
 
         InputManagerSystem::Get().onMouseReleased.Bind(this, &AssetManagerWindow::HandleMouseButtonReleased);
+
+        windowFlags |= ImGuiWindowFlags_MenuBar;
     }
 
     void AssetManagerWindow::Uninitialize()
@@ -43,6 +48,7 @@ namespace LKT
 
     void AssetManagerWindow::RenderContent()
     {
+        DrawCommands();
         if (ImGui::BeginTable("ContentBrowser", 2, ImGuiTableFlags_Resizable | ImGuiTableFlags_Borders))
         {
             ImGui::TableSetupColumn("FolderTree", ImGuiTableColumnFlags_None);
@@ -66,9 +72,55 @@ namespace LKT
             ImGui::BeginChild("##box", ImVec2(0.f, 0.f));
             BrowseDirectory();
             ImGui::EndChild();
-
             ImGui::EndTable();
         }
+    }
+
+    void AssetManagerWindow::DrawCommands()
+    {
+        if (ImGui::BeginMenuBar())
+        {
+            if (ImGui::Button("Import"))
+            {
+                std::string ext = AssetFactoryManager::GetExtensions();
+                pfd::open_file selection = pfd::open_file("Select a file", ".",
+                                                          {"Files", ext},
+                                                          pfd::opt::none);
+
+                while (!selection.ready(1000)) // Maybe add a log or something
+                    ;
+
+                const std::vector<std::string> results = selection.result();
+                if (results.size() > 0)
+                {
+                    const std::string path = results[0];
+                    AssetManager::ImportAsset(path, currentSelection);
+                }
+            }
+
+            if (ImGui::BeginMenu("Create"))
+            {
+                // for (const auto &it : AssetFactory::GetFactories())
+                // {
+                //     if (it.second.canCreate)
+                //     {
+                //         if (ImGui::MenuItem(it.second.displayName.c_str()))
+                //         {
+                //             AssetManager::Get().CreateAsset(currentSelection, it.second.type);
+                //         }
+                //     }
+                // }
+
+                ImGui::EndMenu();
+            }
+            ImGui::EndMenuBar();
+        }
+    }
+
+    void AssetManagerWindow::HandleFileDialogClosed(const std::string &filePath)
+    {
+        InputManagerSystem::Get().UnblockInput();
+        std::cout << filePath << std::endl;
     }
 
     void AssetManagerWindow::BrowseDirectory(const std::string &contentFolder)
@@ -133,21 +185,27 @@ namespace LKT
         {
             const int32_t availableRegion = ImGui::GetContentRegionAvail().x;
             int32_t maxColumns = availableRegion /
-                                 (fileBrowserSettings.columnX + fileBrowserSettings.marginX * 2 + fileBrowserSettings.paddingX * 2);
+                                 (fileBrowserSettings.columnX + fileBrowserSettings.cellPaddingX * 2);
             maxColumns = std::max(2, maxColumns);
 
-            ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(fileBrowserSettings.paddingX, fileBrowserSettings.paddingY));
+            ImGui::PushStyleVar(ImGuiStyleVar_CellPadding, ImVec2(fileBrowserSettings.cellPaddingX, fileBrowserSettings.cellPaddingY));
             if (ImGui::BeginTable("Table", maxColumns))
             {
                 for (int32_t i = 0; i < maxColumns; ++i)
                 {
-                    ImGui::TableSetupColumn(nullptr, ImGuiTableColumnFlags_WidthFixed, (fileBrowserSettings.columnX + fileBrowserSettings.marginX * 2));
+                    ImGui::TableSetupColumn(nullptr, ImGuiTableColumnFlags_WidthFixed, (fileBrowserSettings.columnX));
                 }
 
                 int32_t columnIndex = 0;
                 ImGui::TableNextRow();
                 for (const auto &entry : fs::directory_iterator(currentSelection))
                 {
+                    // Only support .asset
+                    if (!entry.is_directory() && entry.path().extension().string() != ".asset")
+                    {
+                        continue;
+                    }
+
                     ImGui::TableSetColumnIndex(columnIndex);
                     DrawSelectableItem(entry);
 
@@ -177,11 +235,11 @@ namespace LKT
         const std::string selectableName = entry.path().stem().string();
         const std::string selectableNameID = "##" + selectableName;
 
-        const float selectableAreaX = fileBrowserSettings.columnX + fileBrowserSettings.marginX * 2.0f;
-        const float selectableAreaY = fileBrowserSettings.columnY + fileBrowserSettings.marginY * 2.0f;
+        const float selectableAreaX = fileBrowserSettings.columnX;
+        const float selectableAreaY = fileBrowserSettings.columnY;
 
         ImVec2 newPos = ImGui::GetCursorScreenPos();
-        ImVec4 clipRect(newPos.x, newPos.y, newPos.x + fileBrowserSettings.columnX + fileBrowserSettings.marginX * 2, newPos.y + fileBrowserSettings.columnY + fileBrowserSettings.marginY * 2);
+        ImVec4 clipRect(newPos.x, newPos.y, newPos.x + fileBrowserSettings.columnX, newPos.y + fileBrowserSettings.columnY);
 
         if (ImGui::Selectable(selectableNameID.c_str(),
                               isSelected,
@@ -200,28 +258,41 @@ namespace LKT
 
         ImVec2 currentPos = ImGui::GetCursorPos();
 
-        currentPos.x += fileBrowserSettings.textureX - fileBrowserSettings.marginX - fileBrowserSettings.textureX / 2.0f - fileBrowserSettings.marginX / 2.0f;
-        currentPos.y -= fileBrowserSettings.columnY + fileBrowserSettings.marginY + fileBrowserSettings.paddingY;
+        currentPos.x += (fileBrowserSettings.columnX - fileBrowserSettings.textureX) / 2;
+        currentPos.y -= fileBrowserSettings.columnY;
+
         ImGui::SetCursorPos(currentPos);
+
+        // Need to use string and then c_str because c_str expires before ImGui can calculate the size
+        const std::string currentTextC = entry.path().stem().string();
+        const float textSize = ImGui::CalcTextSize(currentTextC.c_str()).x;
 
         if (!entry.is_directory())
         {
-            const uint32_t textureID = AssetManager::Get().GetAssetTexture(entry.path().extension().string());
+            AssetPath assetPath{entry.path()};
+            uint32_t textureID = AssetManager::GetAssetTexture(assetPath);
             ImTextureID texture = reinterpret_cast<ImTextureID>(textureID);
 
             ImGui::Image(texture, ImVec2(fileBrowserSettings.textureX, fileBrowserSettings.textureY));
 
             currentPos = ImGui::GetCursorPos();
-            currentPos.y += fileBrowserSettings.marginY;
+            currentPos.y += fileBrowserSettings.textOffset;
+
+            if (textSize < fileBrowserSettings.columnX)
+            {
+                const float offsetX = (fileBrowserSettings.columnX - textSize) * 0.5f;
+                currentPos.x += offsetX;
+            }
+
             ImGui::SetCursorPos(currentPos);
 
             newPos = ImGui::GetCursorScreenPos();
 
-            ImGui::GetWindowDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize(), newPos, IM_COL32_BLACK, entry.path().stem().c_str(), nullptr, fileBrowserSettings.columnX + fileBrowserSettings.marginX * 2, &clipRect);
+            ImGui::GetWindowDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize(), newPos, IM_COL32_BLACK, entry.path().stem().c_str(), nullptr, fileBrowserSettings.columnX, &clipRect);
 
             if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && isSelected)
             {
-                UIManager::Get().RequestAssetViewer(entry.path());
+                UIManager::Get().RequestAssetViewer(assetPath);
             }
         }
         else
@@ -232,12 +303,19 @@ namespace LKT
             ImGui::Image(texture, ImVec2(fileBrowserSettings.textureX, fileBrowserSettings.textureY));
 
             currentPos = ImGui::GetCursorPos();
-            currentPos.y += fileBrowserSettings.marginY;
+            currentPos.y += fileBrowserSettings.textOffset;
+
+            if (textSize < fileBrowserSettings.columnX)
+            {
+                const float offsetX = (fileBrowserSettings.columnX - textSize) * 0.5f;
+                currentPos.x += offsetX;
+            }
+
             ImGui::SetCursorPos(currentPos);
 
             newPos = ImGui::GetCursorScreenPos();
 
-            ImGui::GetWindowDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize(), newPos, IM_COL32_BLACK, entry.path().stem().c_str(), nullptr, fileBrowserSettings.columnX + fileBrowserSettings.marginX * 2, &clipRect);
+            ImGui::GetWindowDrawList()->AddText(ImGui::GetFont(), ImGui::GetFontSize(), newPos, IM_COL32_BLACK, entry.path().stem().c_str(), nullptr, fileBrowserSettings.columnX, &clipRect);
 
             if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) && isSelected)
             {

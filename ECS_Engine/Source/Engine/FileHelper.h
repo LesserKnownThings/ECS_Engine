@@ -1,6 +1,7 @@
 #pragma once
 
 #include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -11,6 +12,29 @@ namespace LKT
 
 	namespace FileHelper
 	{
+		static void *GetBufferFromStream(std::ifstream &stream, int32_t offset = 0)
+		{
+			std::streamsize fileSize = stream.tellg();
+			stream.seekg(0, std::ios::beg);
+
+			if (offset >= fileSize)
+			{
+				std::cerr << "Offset exceeds file size.\n";
+				return nullptr;
+			}
+
+			stream.seekg(offset, std::ios::beg);
+			std::streamsize remainingSize = fileSize - offset;
+			void *buffer = malloc(remainingSize);
+			stream.read(static_cast<char *>(buffer), remainingSize);
+			return buffer;
+		}
+
+		static bool FileExists(const std::string &path)
+		{
+			return fs::exists(path);
+		}
+
 		static void GetFilesFromDirectory(const std::string &folderPath, std::vector<std::string> &files)
 		{
 			try
@@ -29,7 +53,7 @@ namespace LKT
 			}
 		}
 
-		static void GetFilesFromDirectory(const std::string &folderPath, std::vector<fs::path> &files, bool recursive = true)
+		static void GetFilesFromDirectory(const std::string &folderPath, std::vector<fs::path> &files, const std::string &extension, bool recursive = true)
 		{
 			try
 			{
@@ -37,7 +61,7 @@ namespace LKT
 				{
 					for (const auto &entry : fs::recursive_directory_iterator(folderPath))
 					{
-						if (entry.is_regular_file())
+						if (entry.is_regular_file() && entry.path().extension().string() == extension)
 						{
 							files.push_back(entry.path());
 						}
@@ -47,7 +71,7 @@ namespace LKT
 				{
 					for (const auto &entry : fs::directory_iterator(folderPath))
 					{
-						if (entry.is_regular_file())
+						if (entry.is_regular_file() && entry.path().extension().string() == extension)
 						{
 							files.push_back(entry.path());
 						}

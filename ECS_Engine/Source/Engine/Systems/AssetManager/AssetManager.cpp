@@ -1,10 +1,18 @@
 #include "AssetManager.h"
 #include "Asset.h"
-#include "AssetFactory.h"
+#include "AssetData.h"
+#include "AssetFactory/AssetFactory.h"
+#include "AssetFactory/AssetFactoryManager.h"
 #include "FileHelper.h"
 #include "GraphicHelpers.h"
+#include "LazyAssetPtr.h"
+
+#if EDITOR_ONLY
+#include "EditorUI/AssetViewerWindow.h"
+#endif
 
 #include <iostream>
+#include <sstream>
 
 namespace fs = std::filesystem;
 
@@ -16,54 +24,127 @@ namespace LKT
 		return instance;
 	}
 
-	void AssetManager::GetAsset(const AssetPath &inPath, AssetGetFunction func)
+	bool AssetManager::GetAsset(const AssetPath &path, std::function<void(const LazyAssetPtr<Asset> &asset)> assetProcessFunc)
 	{
-		auto it = assets.find(inPath);
-
-		if (it != assets.end())
+		const AssetManager &instance = AssetManager::Get();
+		const auto it = instance.assets.find(path);
+		if (it != instance.assets.end())
 		{
-			func(it->second);
+			assetProcessFunc(it->second.asset);
+			return true;
+		}
+
+		return false;
+	}
+
+	Asset *AssetManager::LoadAsset(const AssetPath &path)
+	{
+		const AssetManager &instance = AssetManager::Get();
+		const auto it = instance.assets.find(path);
+		if (it != instance.assets.end())
+		{
+			return AssetFactoryManager::LoadAssetFactory(it->second.metadata);
+		}
+		return nullptr;
+	}
+
+	void AssetManager::BuildAssetRegistry()
+	{
+		AssetFactoryManager::LoadSupportedExtensions();
+
+		std::vector<fs::path> assetPaths;
+		FileHelper::GetFilesFromDirectory(contentFolder, assetPaths, ".asset");
+
+		for (const fs::path &assetPath : assetPaths)
+		{
+			AssetPath ap{assetPath};
+			AssetMetadata metadata;
+			AssetFactoryManager::LoadMetadataHeader(ap, metadata);
+			assets.emplace(ap, AssetData{ap, metadata});
+		}
+
+		LoadAssetViewTextures();
+	}
+
+#if EDITOR_ONLY
+	void AssetManager::CreateAsset(const std::string &currentFolderPath, uint32_t type)
+	{
+		// uint32_t index = 1;
+		// std::ostringstream oss;
+		// oss << currentFolderPath << "/NewAsset_" << index << ".asset";
+		// std::string filePath = oss.str();
+		// oss.str("");
+
+		// AssetPath path{filePath};
+		// while (assets.contains(path))
+		// {
+		// 	++index;
+		// 	oss << currentFolderPath << "/NewAsset_" << index << ".asset";
+		// 	filePath = oss.str();
+		// 	path = AssetPath{filePath};
+		// 	oss.str("");
+		// }
+
+		// std::ofstream stream(filePath, std::ios::binary);
+		// AssetMetadata metadata{type, static_cast<int32_t>(filePath.size()), filePath};
+		// // WriteAssetMetadataStream(metadata, stream);
+		// stream.close();
+
+		// assets.emplace(path, LazyAssetPtr<Asset>(path));
+	}
+
+	void AssetManager::ImportAsset(const std::string &path, const std::string &currentFolder)
+	{
+		AssetManager &instance = AssetManager::Get();
+
+		std::vector<AssetData> foundData;
+		if (AssetFactoryManager::ImportAssetFactory(path, currentFolder, foundData))
+		{
+			for (const AssetData &data : foundData)
+			{
+				instance.assets.emplace(data.asset.GetPath(), data);
+			}
 		}
 	}
 
-	uint32_t AssetManager::GetAssetTexture(const std::string &extension) const
+	AssetViewerWindow *AssetManager::LoadAssetViewer(const AssetPath &path)
 	{
-		const int32_t id = AssetFactory::GetAssetExtensionId(extension);
-		if (id != 0)
+		const AssetManager &instance = AssetManager::Get();
+		const auto it = instance.assets.find(path);
+		if (it != instance.assets.end())
 		{
-			const auto it = assetViewTextures.find(id);
-			if (it != assetViewTextures.end())
+			return AssetFactoryManager::LoadAssetViewerFactory(it->second.metadata, path);
+		}
+		return nullptr;
+	}
+
+	uint32_t AssetManager::GetAssetTexture(const AssetPath &path)
+	{
+		const AssetManager &instance = AssetManager::Get();
+		const auto it = instance.assets.find(path);
+
+		if (it != instance.assets.end())
+		{
+			const auto textureIt = instance.assetViewTextures.find(it->second.metadata.type);
+			if (textureIt != instance.assetViewTextures.end())
 			{
-				return it->second;
+				return textureIt->second;
 			}
 		}
-
 		return 0;
 	}
 
-	uint32_t AssetManager::GetFolderTexture() const
+	uint32_t AssetManager::GetFolderTexture()
 	{
-		const auto it = assetViewTextures.find(FOLDER);
-		if (it != assetViewTextures.end())
+		const AssetManager &instance = AssetManager::Get();
+
+		const auto it = instance.assetViewTextures.find(FOLDER);
+		if (it != instance.assetViewTextures.end())
 		{
 			return it->second;
 		}
 
 		return 0;
-	}
-
-	void AssetManager::BuildAssetRegistry()
-	{
-		std::vector<fs::path> assetPaths;
-		FileHelper::GetFilesFromDirectory(contentFolder, assetPaths);
-
-		for (const fs::path &assetPath : assetPaths)
-		{
-			AssetPath ap{assetPath};
-			assets.emplace(ap, LazyAssetPtr<Asset>{ap});
-		}
-
-		LoadAssetViewTextures();
 	}
 
 	void AssetManager::LoadAssetViewTextures()
@@ -76,6 +157,8 @@ namespace LKT
 				AssetTextureStorage{TEXTURE, "Data/Textures/Assets/texture.png"},
 				// Attribute to https://www.flaticon.com/authors/freepik
 				AssetTextureStorage{MESH, "Data/Textures/Assets/mesh.png"},
+				// Attribute to https://www.flaticon.com/authors/freepik
+				AssetTextureStorage{PARTICLESYSTEM, "Data/Textures/Assets/particle_system.png"},
 			};
 
 		for (const AssetTextureStorage &storage : textureStorage)
@@ -87,20 +170,5 @@ namespace LKT
 			assetViewTextures[storage.id] = textureID;
 		}
 	}
-
-	AssetPath::AssetPath(const std::filesystem::path &inFullPath)
-	{
-		fullPath = inFullPath.string();
-
-		assetName = inFullPath.stem().string();
-		extension = inFullPath.extension().string();
-
-		for (const fs::path &path : inFullPath)
-		{
-			if (!path.has_filename())
-			{
-				subFolders.push_back(path.string());
-			}
-		}
-	}
+#endif
 }

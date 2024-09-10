@@ -24,9 +24,11 @@ namespace LKT
 
 		glDeleteBuffers(5, buffers);
 		glDeleteVertexArrays(1, &vao);
+
+		free(particleDataCPU.buffer);
 	}
 
-	bool ParticleEmitter::Serialize(std::ostream &outStream) const
+	bool ParticleEmitter::Serialize(std::ofstream &outStream) const
 	{
 		outStream.write(reinterpret_cast<const char *>(&commonParticleData.initialColor), sizeof(Color));
 		outStream.write(reinterpret_cast<const char *>(&commonParticleData.rate), sizeof(uint32_t));
@@ -208,60 +210,60 @@ namespace LKT
 		glBufferData(GL_ARRAY_BUFFER, size, particleDataCPU.buffer, GL_DYNAMIC_DRAW);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-		MeshLoadingSystem::Get().ImportMesh("Data/quad.obj");
+		// MeshLoadingSystem::Get().ImportMesh("Data/quad.obj");
 
-		MeshLoadingSystem::Get().GetMeshData("Data/quad.obj", [this](const DrawData &tempData)
-											 {
-				elementsCount = tempData.indicesCount;
+		// MeshLoadingSystem::Get().GetMeshData("Data/quad.obj", [this](const MeshData &tempData)
+		// 									 {
+		// 		elementsCount = tempData.indicesCount;
 
-				glGenVertexArrays(1, &vao);
-				glBindVertexArray(vao);
+		// 		glGenVertexArrays(1, &vao);
+		// 		glBindVertexArray(vao);
 
-				glGenBuffers(1, &ebo);
-				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-				const int32_t elementBufferSize = tempData.indicesCount * sizeof(uint32_t);
-				glBufferData(GL_ELEMENT_ARRAY_BUFFER, elementBufferSize, tempData.indices.data(), GL_STATIC_DRAW);
+		// 		glGenBuffers(1, &ebo);
+		// 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+		// 		const int32_t elementBufferSize = tempData.indicesCount * sizeof(uint32_t);
+		// 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, elementBufferSize, tempData.indices.data(), GL_STATIC_DRAW);
 
-				glGenBuffers(1, &vbo);
-				glBindBuffer(GL_ARRAY_BUFFER, vbo);
-				const int32_t vertexBufferSize = tempData.vertexCount * sizeof(VertexData);
-				glBufferData(GL_ARRAY_BUFFER, vertexBufferSize, tempData.vertexData.buffer, GL_STATIC_DRAW);
+		// 		glGenBuffers(1, &vbo);
+		// 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		// 		const int32_t vertexBufferSize = tempData.vertexCount * sizeof(VertexData);
+		// 		glBufferData(GL_ARRAY_BUFFER, vertexBufferSize, tempData.vertexData.buffer, GL_STATIC_DRAW);
 
-				glEnableVertexAttribArray(0);
-				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+		// 		glEnableVertexAttribArray(0);
+		// 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
-				glEnableVertexAttribArray(1);
-				glBindBuffer(GL_ARRAY_BUFFER, perIndexVbo);
-				glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)sizeof(glm::vec4));
-				glVertexAttribDivisor(1, 1);
-				glBindBuffer(GL_ARRAY_BUFFER, 0); });
+		// 		glEnableVertexAttribArray(1);
+		// 		glBindBuffer(GL_ARRAY_BUFFER, perIndexVbo);
+		// 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)sizeof(glm::vec4));
+		// 		glVertexAttribDivisor(1, 1);
+		// 		glBindBuffer(GL_ARRAY_BUFFER, 0); });
 
-		glBindVertexArray(0);
+		// glBindVertexArray(0);
 	}
 
 	void ParticleEmitter::SetupGPUVertexBuffers()
 	{
-		MeshLoadingSystem::Get().ImportMesh("Data/quad.obj");
+		// MeshLoadingSystem::Get().ImportMesh("Data/quad.obj");
 
-		MeshLoadingSystem::Get().GetMeshData("Data/quad.obj", [this](const DrawData &tempData)
-											 {
-				elementsCount = tempData.indicesCount;
+		// MeshLoadingSystem::Get().GetMeshData("Data/quad.obj", [this](const MeshData &tempData)
+		// 									 {
+		// 		elementsCount = tempData.indicesCount;
 
-				glGenVertexArrays(1, &vao);
-				glBindVertexArray(vao);
+		// 		glGenVertexArrays(1, &vao);
+		// 		glBindVertexArray(vao);
 
-				glGenBuffers(1, &ebo);
-				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-				const int32_t elementBufferSize = tempData.indicesCount * sizeof(uint32_t);
-				glBufferData(GL_ELEMENT_ARRAY_BUFFER, elementBufferSize, tempData.indices.data(), GL_STATIC_DRAW);
+		// 		glGenBuffers(1, &ebo);
+		// 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+		// 		const int32_t elementBufferSize = tempData.indicesCount * sizeof(uint32_t);
+		// 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, elementBufferSize, tempData.indices.data(), GL_STATIC_DRAW);
 
-				glGenBuffers(1, &vbo);
-				glBindBuffer(GL_ARRAY_BUFFER, vbo);
-				const int32_t vertexBufferSize = tempData.vertexCount * sizeof(VertexData);
-				glBufferData(GL_ARRAY_BUFFER, vertexBufferSize, tempData.vertexData.buffer, GL_STATIC_DRAW);
+		// 		glGenBuffers(1, &vbo);
+		// 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		// 		const int32_t vertexBufferSize = tempData.vertexCount * sizeof(VertexData);
+		// 		glBufferData(GL_ARRAY_BUFFER, vertexBufferSize, tempData.vertexData.buffer, GL_STATIC_DRAW);
 
-				glEnableVertexAttribArray(0);
-				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0); });
+		// 		glEnableVertexAttribArray(0);
+		// 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0); });
 
 		glBindVertexArray(0);
 	}

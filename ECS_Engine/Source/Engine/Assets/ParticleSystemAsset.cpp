@@ -3,30 +3,20 @@
 
 namespace LKT
 {
-    void ParticleSystemAsset::LoadAsset(const AssetPath &inPath)
+    void ParticleSystemAsset::UnloadAsset()
     {
-        Asset::LoadAsset(inPath);
+        delete particleSystem;
+        particleSystem = nullptr;
     }
 
-    bool ParticleSystemAsset::Serialize(std::ostream &outStream) const
+    bool ParticleSystemAsset::Serialize(std::ofstream &outStream) const
     {
-        bool success = Asset::Serialize(outStream);
-
-        if (particleSystem != nullptr)
-        {
-            success &= particleSystem->Serialize(outStream);
-        }
-
-        return success;
+        return particleSystem->Serialize(outStream);
     }
 
     bool ParticleSystemAsset::Deserialize(std::ifstream &inStream)
     {
-        bool success = Asset::Deserialize(inStream);
-
         particleSystem = new ParticleSystem();
-        success &= particleSystem->Deserialize(inStream);
-
-        return success;
+        return particleSystem->Deserialize(inStream);
     }
 }

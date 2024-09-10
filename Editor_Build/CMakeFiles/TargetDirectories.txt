@@ -1,3 +1,0 @@
-/home/mursu/FastBoi/GitHub/ECS_Engine/Editor_Build/CMakeFiles/ECS_Engine.dir
-/home/mursu/FastBoi/GitHub/ECS_Engine/Editor_Build/CMakeFiles/edit_cache.dir
-/home/mursu/FastBoi/GitHub/ECS_Engine/Editor_Build/CMakeFiles/rebuild_cache.dir

@@ -2,8 +2,6 @@
 
 #include "BuildMacros.h"
 #include "Delegate.h"
-#include "Systems/AssetManager/LazyAssetPtr.h"
-#include "UniqueID.h"
 
 #include <filesystem>
 #include <string>
@@ -17,11 +15,14 @@ namespace LKT
 #endif
 
 	class EngineWindow;
+	class AssetViewerWindow;
 
-	DECLARE_DELEGATE_OneParam(OnWindowClosed, const EngineWindow *)
-		DECLARE_DELEGATE_OneParam(OnUniqueWindowClosed, const EngineWindow *)
+	struct AssetPath;
 
-			struct WindowFactoryData
+	DECLARE_DELEGATE_OneParam(OnWindowClosed, const EngineWindow *);
+	DECLARE_DELEGATE_OneParam(OnUniqueWindowClosed, const AssetViewerWindow *);
+
+	struct WindowFactoryData
 	{
 		std::string windowName;
 		std::vector<std::string> subMenus;
@@ -38,12 +39,12 @@ namespace LKT
 		void InitializeUI();
 		void UninitializeUI();
 
-		void RegisterWindow(const WindowFactoryData &factoryData);
-
 		EngineWindow *GetWindow(const std::string &windowName);
-		EngineWindow *GetUniqueWindow(const std::string &windowName);
 
-		void RequestAssetViewer(const std::filesystem::path &assetPath);
+#if EDITOR_ONLY
+		void RegisterWindow(const WindowFactoryData &factoryData);
+		void RequestAssetViewer(const AssetPath &assetPath);
+#endif
 
 		OnWindowClosed onWindowClosed;
 		OnUniqueWindowClosed onUniqueWindowClosed;
@@ -56,7 +57,7 @@ namespace LKT
 		void Deserialize();
 #endif
 
-		void HandleUniqueWindowClosed(const EngineWindow *window);
+		void HandleUniqueWindowClosed(const AssetViewerWindow *window);
 		void HandleWindowClosed(const EngineWindow *window);
 
 		const std::unordered_map<std::string, WindowFactoryData> &GetFactories() const { return factories; }
@@ -64,7 +65,7 @@ namespace LKT
 		std::unordered_map<std::string, WindowFactoryData> factories;
 
 		std::unordered_map<std::string, EngineWindow *> windows;
-		std::unordered_map<std::string, EngineWindow *> uniqueWindows;
+		std::unordered_map<std::string, AssetViewerWindow *> uniqueWindows;
 
 #if EDITOR_ONLY
 		EditorMainWindow *mainWindow = nullptr;

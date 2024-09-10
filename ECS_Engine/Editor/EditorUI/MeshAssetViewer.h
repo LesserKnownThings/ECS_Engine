@@ -11,5 +11,6 @@ namespace LKT
 
     protected:
         void RenderContent() override;
+        void RenderAsset() override;
     };
 }

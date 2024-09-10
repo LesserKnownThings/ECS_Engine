@@ -52,9 +52,29 @@ namespace LKT
 		{
 			if (activeShader != shaderName)
 			{
+				lastActiveShader = activeShader;
 				activeShader = shaderName;
 				glUseProgram(engineShaders[shaderName]->GetID());
 			}
+		}
+	}
+
+	void ShaderManager::ActivateLastShader()
+	{
+		ShaderManager &instance = ShaderManager::Get();
+		const auto it = instance.engineShaders.find(instance.lastActiveShader);
+
+		if (it != instance.engineShaders.end())
+		{
+			glUseProgram(instance.engineShaders[instance.lastActiveShader]->GetID());
+		}
+	}
+
+	void ShaderManager::SetInt(const std::string &name, int32_t value)
+	{
+		if (ShaderProgram *sp = GetActiveShader())
+		{
+			sp->SetInt(name, value);
 		}
 	}
 

@@ -12,32 +12,33 @@
 
 namespace LKT
 {
-	DECLARE_DELEGATE(OnCloseApp)
-	DECLARE_DELEGATE(OnWindowResized)
-	DECLARE_DELEGATE_TwoParams(OnWindowResizedParams, int32_t, int32_t)
+	DECLARE_DELEGATE(OnCloseApp);
+	DECLARE_DELEGATE(OnWindowResized);
 
-	DECLARE_DELEGATE_OneParam(MouseActionDelegate, const SDL_MouseButtonEvent&)
+	DECLARE_DELEGATE_OneParam(MouseActionDelegate, const SDL_MouseButtonEvent &);
 
 	class InputManagerSystem
 	{
 	public:
-		static InputManagerSystem& Get();
+		static InputManagerSystem &Get();
 
 		~InputManagerSystem();
 
 		float GetHorizontalAxis();
 		float GetVerticalAxis();
 
-		const glm::vec2& GetMouseDelta() const { return mouseDelta; }
+		void BlockInput() { isBlocked = true; }
+		void UnblockInput() { isBlocked = false; }
+
+		const glm::vec2 &GetMouseDelta() const { return mouseDelta; }
 
 		OnCloseApp onCloseAppDelegate;
 		OnWindowResized onWindowResized;
-		OnWindowResizedParams onWindowResizedParams;
 
 		MouseActionDelegate onMousePressed;
 		MouseActionDelegate onMouseReleased;
 
-		//For continous mouse press
+		// For continous mouse press
 		MouseActionDelegate onMouseDown;
 
 	private:
@@ -50,5 +51,6 @@ namespace LKT
 		glm::vec2 mouseDelta;
 
 		uint32_t pressedMouseButtons = 0;
+		bool isBlocked = false;
 	};
 }

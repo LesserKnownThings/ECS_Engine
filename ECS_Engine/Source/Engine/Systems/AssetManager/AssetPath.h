@@ -2,28 +2,28 @@
 
 #include <filesystem>
 #include <string>
-#include <vector>
 
 namespace LKT
 {
     struct AssetPath
     {
         AssetPath() = default;
-        AssetPath(const std::filesystem::path &inFullPath);
+        AssetPath(const std::filesystem::path &inFullPath)
+            : fullPath(inFullPath.string()), assetName(inFullPath.stem().string()), extension(inFullPath.extension().string())
+        {
+        }
 
         AssetPath(const AssetPath &other)
             : fullPath(other.fullPath),
               assetName(other.assetName),
-              extension(other.extension),
-              subFolders(other.subFolders)
+              extension(other.extension)
         {
         }
 
         AssetPath(AssetPath &&other) noexcept
             : fullPath(std::move(other.fullPath)),
               assetName(std::move(other.assetName)),
-              extension(std::move(other.extension)),
-              subFolders(std::move(other.subFolders))
+              extension(std::move(other.extension))
         {
         }
 
@@ -34,7 +34,6 @@ namespace LKT
                 fullPath = std::move(other.fullPath);
                 assetName = std::move(other.assetName);
                 extension = std::move(other.extension);
-                subFolders = std::move(other.subFolders);
             }
 
             return *this;
@@ -50,7 +49,6 @@ namespace LKT
         std::string fullPath;
         std::string assetName;
         std::string extension;
-        std::vector<std::string> subFolders;
     };
 
     struct AssetPathHash

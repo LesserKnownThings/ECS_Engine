@@ -1,4 +1,8 @@
 #include "Engine.h"
+#include "BuildMacros.h"
+#include "Systems/ShaderSystem/ShaderManager.h"
+#include "Systems/TaskManagerSystem.h"
+#include "UI/UIManager.h"
 
 #include <unistd.h>
 
@@ -13,15 +17,11 @@
 #include "Systems/InputSystem/InputManagerSystem.h"
 #include "Systems/MeshLoadingSystem.h"
 #include "Systems/OpenGLSystem.h"
-#include "Systems/Random.h"
+#include "Random.h"
 #include "Systems/RenderComponent.h"
 #include "Systems/ResourceManagerSystem.h"
-#include "Systems/ShaderSystem/ShaderManager.h"
-#include "Systems/TaskManagerSystem.h"
 #include "Systems/TransformComponent.h"
 #include "Systems/TransformSystem.h"
-#include "UI/UIManager.h"
-#include "BuildMacros.h"
 
 namespace LKT
 {
@@ -53,6 +53,16 @@ namespace LKT
     const Engine *Engine::Get()
     {
         return instance;
+    }
+
+    bool Engine::IsPlayMode()
+    {
+        if (instance != nullptr)
+        {
+            instance->isPlayMode;
+        }
+
+        return false;
     }
 
     void Engine::RunEngine()
@@ -133,10 +143,7 @@ namespace LKT
     {
         InitializeUI();
 
-#if EDITOR_ONLY
-        // This builds the editor asset registry, for project asset registry use the LazyAssetPtr instead
         AssetManager::Get().BuildAssetRegistry();
-#endif
 
         InputManagerSystem::Get().onCloseAppDelegate.Bind(this, &Engine::HandleCloseEngine);
 

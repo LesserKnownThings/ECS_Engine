@@ -1,0 +1,55 @@
+# Prerequisites
+*.d
+
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+
+# Fortran module files
+*.mod
+*.smod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+*.users
+*.filters
+*.vcxproj
+
+*.cmake
+*.vcxproj
+*.vcxproj.user
+*.vcxproj.filters
+
+/x64
+/.vs
+/.git
+/ECS_Engine/x64
+/ECS_Engine/CMakeFiles
+/ECS_Engine/Debug
+/ECS_Engine/ECS_Engine.dir
+
+/ECS_Engine/build
+/ECS_Engine/imgui.ini
+/ECS_Engine/Game_Build
+/ECS_Engine/Editor_Build
+/ECS_Engine/Linking
+/ECS_Engine/Include

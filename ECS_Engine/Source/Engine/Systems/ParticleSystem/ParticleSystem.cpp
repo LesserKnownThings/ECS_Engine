@@ -2,14 +2,11 @@
 #include "ParticleEmitter.h"
 #include "Systems/ShaderSystem/ShaderProgram.h"
 #include "Systems/ShaderSystem/ShaderManager.h"
-#include "Systems/TaskManagerSystem.h"
 
 namespace LKT
 {
 	ParticleSystem::~ParticleSystem()
 	{
-		TaskManagerSystem::Get().RemoveTask(this);
-
 		for (ParticleEmitter *emitter : emitters)
 		{
 			delete emitter;
@@ -20,9 +17,6 @@ namespace LKT
 
 	ParticleSystem::ParticleSystem()
 	{
-		TaskManagerSystem::Get().RegisterTask(this, &ParticleSystem::Render, 0, RENDER_HANDLE);
-		TaskManagerSystem::Get().RegisterTask(this, &ParticleSystem::Simulate);
-
 		// TODO For testing only, will remove this once emitters can be created from UI
 		CreateEmitter();
 	}
@@ -58,7 +52,7 @@ namespace LKT
 		}
 	}
 
-	bool ParticleSystem::Serialize(std::ostream &outStream) const
+	bool ParticleSystem::Serialize(std::ofstream &outStream) const
 	{
 		bool success = true;
 

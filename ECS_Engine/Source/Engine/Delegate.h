@@ -6,9 +6,9 @@
 
 namespace LKT
 {
-#define FUNC_CONCAT( ... ) __VA_ARGS__
+#define FUNC_CONCAT(...) __VA_ARGS__
 
-#define FUNC_BIND_DELEGATE(name, ...)\
+#define FUNC_BIND_DELEGATE(name, ...) \
 	typedef Delegate<__VA_ARGS__> name;
 
 #define DECLARE_DELEGATE(name) FUNC_BIND_DELEGATE(name)
@@ -18,11 +18,11 @@ namespace LKT
 	template <typename... Args>
 	class Delegate
 	{
-		typedef void* ptr;
+		typedef void *ptr;
 		using functionPtr = std::function<void(Args...)>;
 
-		template<class C>
-		using memberFunctionPtr = void(C::*)(Args...);
+		template <class C>
+		using memberFunctionPtr = void (C::*)(Args...);
 
 	public:
 		bool IsBound() const
@@ -30,40 +30,40 @@ namespace LKT
 			return internalStubs.size() > 0;
 		}
 
-/*
-		template<class C>
-		static Delegate<Args...> CreateDelegate(C* obj, memberFunctionPtr<C> funcPtr)
-		{
-			static Delegate<Args...> new_del;
-			new_del.Bind(obj, funcPtr);
-			return new_del;
-		}
-*/
+		/*
+				template<class C>
+				static Delegate<Args...> CreateDelegate(C* obj, memberFunctionPtr<C> funcPtr)
+				{
+					static Delegate<Args...> new_del;
+					new_del.Bind(obj, funcPtr);
+					return new_del;
+				}
+		*/
 
-		template<class C>
-		void Bind(C* owningObj, memberFunctionPtr<C> funcPtr)
+		template <class C>
+		void Bind(C *owningObj, memberFunctionPtr<C> funcPtr)
 		{
 			functionPtr new_func_ptr =
 				[owningObj, funcPtr](Args... args)
-				{
-					(owningObj->*funcPtr)(args...);
-				};
+			{
+				(owningObj->*funcPtr)(args...);
+			};
 
-			internalStubs.insert({ owningObj, new_func_ptr });
+			internalStubs.insert({owningObj, new_func_ptr});
 		}
 
 		void Invoke(Args... args) const
 		{
-			for (const std::pair<ptr, functionPtr>& func : internalStubs)
+			for (const std::pair<ptr, functionPtr> &func : internalStubs)
 			{
 				func.second(args...);
 			}
 		}
 
-		template<class C>
-		void Clear(const C* instance)
+		template <class C>
+		void Clear(const C *instance)
 		{
-			internalStubs.erase((void*)instance);
+			internalStubs.erase((void *)instance);
 		}
 
 	private:

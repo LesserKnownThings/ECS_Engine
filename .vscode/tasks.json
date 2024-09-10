@@ -1,0 +1,29 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Editor",
+			"type": "shell",
+			"command": "${workspaceFolder}/BuildScripts/editor_script.sh",
+            "args": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [],
+            "detail": "Will compile and run the editor."
+		},
+		{
+			"label": "Game",
+			"type": "shell",
+			"command": "${workspaceFolder}/BuildScripts/game_script.sh",
+            "args": [],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": [],
+            "detail": "Will compile and run the game only, editor will be excluded."
+		}
+	]
+}

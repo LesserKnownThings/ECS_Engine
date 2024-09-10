@@ -7,14 +7,15 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+set(CMAKE_C_COMPILER "clang")
+set(CMAKE_CXX_COMPILER "clang++")
+set(CMAKE_CXX_FLAGS "-std=c++20 -g")
+
 set(GLOBAL_SOURCES "")
 set(GLOBAL_HEADERS "")
 
 if(CMAKE_BUILD_TYPE STREQUAL "Editor")
-	add_compile_definitions(EDITOR_ONLY=1)
-	set(CMAKE_C_COMPILER "clang")
-	set(CMAKE_CXX_COMPILER "clang++")
-	set(CMAKE_CXX_FLAGS "-std=c++20 -g")
+	add_compile_definitions(EDITOR_ONLY=1)	
 	file(GLOB_RECURSE EDITOR_SOURCES "${CMAKE_SOURCE_DIR}/**/Editor/*.cpp")
 	list(APPEND GLOBAL_SOURCES ${EDITOR_SOURCES})
 	include_directories(${CMAKE_SOURCE_DIR}/ECS_Engine/Editor)
@@ -23,8 +24,6 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "Game")
 	file(GLOB_RECURSE EDITOR_HEADERS "${CMAKE_SOURCE_DIR}/**/Editor/*.h")
 	list(APPEND GLOBAL_HEADERS ${EDITOR_HEADERS})
 endif()
-
-message(STATUS "includes: ${GLOBAL_SOURCES}")
 
 file(GLOB_RECURSE SOURCES "${CMAKE_SOURCE_DIR}/**/Source/Engine/*.cpp")
 list(APPEND GLOBAL_SOURCES ${SOURCES})
@@ -46,11 +45,21 @@ endforeach()
 
 add_definitions(-DGLEW_NO_GLU)
 
+if (UNIX)
+	#I'm still thinking about using GTK4 or not, for now it's a no
+	#find_package(PkgConfig REQUIRED)
+	#pkg_check_modules(GTK4 REQUIRED gtk4)
+
+	#include_directories(${GTK4_INCLUDE_DIRS})
+	#link_directories(${GTK4_LIBRARY_DIRS})
+endif()
+
 add_executable(ECS_Engine ${GLOBAL_SOURCES} ${GLOBAL_HEADERS})
 
 if(UNIX)	
 	find_library(UUID_LIBRARIES NAMES uuid)
 	target_link_libraries(ECS_Engine PRIVATE ${UUID_LIBRARIES})
+	#target_link_libraries(ECS_Engine PRIVATE ${GTK4_LIBRARIES})
 endif()
 
 set(LIBRARY_FILES "")

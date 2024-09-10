@@ -2,8 +2,8 @@
 #include "imgui/imgui.h"
 #include "imgui/backends/imgui_impl_sdl3.h"
 #include "imgui/backends/imgui_impl_opengl3.h"
-#include "CameraSystem.h"
 #include "glew/glew.h"
+#include "GraphicHelpers.h"
 #include "InputSystem/InputManagerSystem.h"
 #include "MeshLoadingSystem.h"
 #include "ParticleSystem/ParticleSystem.h"
@@ -123,15 +123,11 @@ namespace LKT
 			SDL_DestroyWindow(window);
 			window = nullptr;
 		}
-
-		defaultCamera->Uninitialize();
-		delete defaultCamera;
 	}
 
 	void OpenGLSystem::HandlePostShaderCompile()
 	{
 		ShaderManager::Get().ActivateShader(defaultShaderName);
-		defaultCamera = new CameraSystem(width, height);
 	}
 
 	void OpenGLSystem::PreRender()
@@ -154,23 +150,6 @@ namespace LKT
 		PreRenderUI();
 
 		ShaderManager::Get().ActivateShader(defaultShaderName);
-
-		for (const auto &kvp : instances)
-		{
-			glActiveTexture(GL_TEXTURE0);
-			glBindTexture(GL_TEXTURE_2D, renderComponent.textureID[kvp.second]);
-
-			glBindVertexArray(renderComponent.vao[kvp.second]);
-			glDrawElements(GL_TRIANGLES, renderComponent.elementCount[kvp.second], GL_UNSIGNED_INT, 0);
-
-			glm::mat4 model = glm::mat4(1.0f);
-			TransformSystem::Get().GetModel(kvp.first, model);
-			ShaderManager::Get().SetMat4f("model", model);
-
-			glBindTexture(GL_TEXTURE_2D, 0);
-			glBindVertexArray(0);
-		}
-
 		TaskManagerSystem::Get().ExecuteTasks(RENDER_HANDLE);
 
 		PostRenderUI();
@@ -239,6 +218,12 @@ namespace LKT
 		memcpy(&renderComponent.textureID[startingIndex], modBuffer + entityCount * 4, size);
 	}
 
+	void OpenGLSystem::ResetViewport()
+	{
+		glViewport(0, 0, width, height);
+		glScissor(0, 0, width, height);
+	}
+
 	bool OpenGLSystem::GetComponent(const Entity &e, uint32_t &outComponent) const
 	{
 		const auto it = instances.find(e);
@@ -252,6 +237,13 @@ namespace LKT
 		return false;
 	}
 
+	void OpenGLSystem::GetViewportSize(float &x, float &y)
+	{
+		const OpenGLSystem &instance = OpenGLSystem::Get();
+		x = instance.width;
+		y = instance.height;
+	}
+
 	void OpenGLSystem::SetComponentMesh(const std::string &meshPath, const Entity &e)
 	{
 		const auto it = instances.find(e);
@@ -260,12 +252,59 @@ namespace LKT
 		{
 			const uint32_t componentIndex = it->second;
 
-			if (!MeshLoadingSystem::Get().GetMeshData(meshPath, [this, componentIndex](const DrawData &tempData)
-													  { LoadMeshData(componentIndex, tempData); }))
-			{
-				printf("Error, could not load mesh %s", meshPath.data());
-			}
+			// if (!MeshLoadingSystem::Get().GetMeshData(meshPath, [this, componentIndex](const MeshData &tempData)
+			// 										  { LoadMeshData(componentIndex, tempData); }))
+			// {
+			// 	printf("Error, could not load mesh %s", meshPath.data());
+			// }
 		}
+	}
+
+	void OpenGLSystem::GetRenderComponentObject(const MeshData &meshData, RenderComponentObject &rco)
+	{
+		uint32_t vao, vbo, ebo;
+
+		glGenVertexArrays(1, &vao);
+		glBindVertexArray(vao);
+
+		glGenBuffers(1, &vbo);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+
+		glGenBuffers(1, &ebo);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+
+		const int32_t vertexBufferSize = meshData.vertexCount * sizeof(VertexData);
+		glBufferData(GL_ARRAY_BUFFER, vertexBufferSize, meshData.vertexData.buffer, GL_STATIC_DRAW);
+
+		const int32_t elementBufferSize = meshData.indicesCount * sizeof(uint32_t);
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, elementBufferSize, meshData.indices.data(), GL_STATIC_DRAW);
+
+		uint32_t offset = 0;
+
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void *)(uintptr_t)offset);
+
+		offset += sizeof(glm::vec3) * meshData.vertexCount;
+
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void *)(uintptr_t)offset);
+
+		offset += sizeof(glm::vec3) * meshData.vertexCount;
+
+		glEnableVertexAttribArray(2);
+		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, (void *)(uintptr_t)offset);
+
+		rco = RenderComponentObject{vao, vbo, ebo, meshData.indicesCount};
+	}
+
+	void OpenGLSystem::UnloadRenderComponentObject(RenderComponentObject &rco)
+	{
+		glDeleteVertexArrays(1, &rco.vao);
+
+		glDeleteBuffers(1, &rco.vbo);
+		glDeleteBuffers(1, &rco.ebo);
+
+		// TODO check if texture needs to be deleted too
 	}
 
 	void OpenGLSystem::AllocateMemory(int32_t size)
@@ -298,7 +337,7 @@ namespace LKT
 		renderComponent = newComponent;
 	}
 
-	void OpenGLSystem::LoadMeshData(uint32_t componentIndex, const DrawData &tempData)
+	void OpenGLSystem::LoadMeshData(uint32_t componentIndex, const MeshData &tempData)
 	{
 		renderComponent.elementCount[componentIndex] = tempData.indicesCount;
 
@@ -346,9 +385,7 @@ namespace LKT
 		glViewport(0, 0, width, height);
 		glScissor(0, 0, width, height);
 
-		defaultCamera->HandleWindowResize(width, height);
-
-		InputManagerSystem::Get().onWindowResizedParams.Invoke(width, height);
+		onWindowResized.Invoke(width, height);
 	}
 
 	void OpenGLSystem::SetupUI()
@@ -361,7 +398,7 @@ namespace LKT
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;  // Enable Gamepad Controls
 
-		ImFont *customFont = io.Fonts->AddFontFromFileTTF("Data/Fonts/UbuntuMono-Bold.ttf", 18);
+		ImFont *customFont = io.Fonts->AddFontFromFileTTF("Data/Content/Fonts/UbuntuMono-Bold.ttf", 16);
 		io.FontDefault = customFont;
 
 		/* Not too sure I want to support this
