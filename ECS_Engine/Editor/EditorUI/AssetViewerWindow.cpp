@@ -19,7 +19,7 @@ namespace LKT
     {
         asset.LoadAsset();
         name = asset.GetName() + "##" + GetID().ToString();
-        TaskManagerSystem::Get().RegisterTask(this, &AssetViewerWindow::Render, INT32_MAX - 1, RENDER_HANDLE);
+        TaskManagerSystem::Get().RegisterTask(this, &AssetViewerWindow::Render, INT32_MAX, RENDER_HANDLE);
 
         if (windowCustomFlags & WINDOW_SUPPORT_RENDER_BUFFER)
         {

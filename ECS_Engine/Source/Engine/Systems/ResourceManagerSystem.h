@@ -22,8 +22,7 @@ namespace LKT
 	struct ComponentResourceData
 	{
 		ComponentResourceData() = default;
-
-		uint32_t component = 0;
+		ComponentResourceData(ComponentResourceData &&other);
 		void *data = nullptr;
 	};
 
@@ -34,6 +33,13 @@ namespace LKT
 		{
 			entities = (Entity *)malloc(entitiesCount * sizeof(Entity));
 		}
+
+		~EntityResource();
+
+		EntityResource(EntityResource&& other);
+		EntityResource& operator=(EntityResource&& other);
+
+		EntityResource(const EntityResource& other) = delete;
 
 		template <typename... Args>
 		void AddComponentResources(Args &&...args);
@@ -103,9 +109,10 @@ namespace LKT
 	{
 		if (ComponentResource *compRes = reinterpret_cast<ComponentResource *>(&res))
 		{
-			ComponentResourceData compData;
-			compData.data = std::move(compRes->buffer);
-			components.emplace(typeid(T), compData);
+			ComponentResourceData comp;
+			comp.data = compRes->buffer;
+			compRes->buffer = nullptr;
+			components.emplace(typeid(T), std::move(comp));
 		}
 	}
 

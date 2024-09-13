@@ -147,46 +147,26 @@ namespace LKT
 
         InputManagerSystem::Get().onCloseAppDelegate.Bind(this, &Engine::HandleCloseEngine);
 
-        /*
-                LazyAssetPtr<Texture> test("Data/restaurantbits_texture.png");
-                Texture *text = test.LoadAsset();
+        int32_t entCount = 1;
 
-                int32_t entCount = 1;
+        EntityResource res{entCount};
+        glm::vec3 *position = new glm::vec3[entCount];
+        glm::vec3 *rot = new glm::vec3[entCount];
+        glm::vec3 *scale = new glm::vec3[entCount];
 
-                EntityResource res{entCount};
-                glm::vec3 *position = (glm::vec3 *)malloc(sizeof(glm::vec3) * entCount);
-                glm::vec3 *rot = (glm::vec3 *)malloc(sizeof(glm::vec3) * entCount);
-                glm::vec3 *scale = (glm::vec3 *)malloc(sizeof(glm::vec3) * entCount);
+        for (int32_t i = 0; i < entCount; ++i)
+        {
+            position[i] = glm::vec3(Random::RandomRange(-250.0f, 250.0f), Random::RandomRange(-250.0f, 250.0f),
+                                    Random::RandomRange(-250.0f, 250.0f));
 
-                uint32_t *textures = (uint32_t *)malloc(sizeof(uint32_t) * entCount);
+            const float _scale = Random::RandomRange(10.0f, 20.0f);
+            scale[i] = glm::vec3(_scale, _scale, _scale);
+        }
 
-                for (int32_t i = 0; i < entCount; ++i)
-                {
-                    position[i] = glm::vec3(Random::RandomRange(-250.0f, 250.0f), Random::RandomRange(-250.0f, 250.0f),
-                                            Random::RandomRange(-250.0f, 250.0f));
+        res.AddComponentResources<TransformComponentResource, RenderComponentResource>(
+            TransformComponentResource{entCount, position, nullptr, scale}, RenderComponentResource{entCount});
 
-                    const float _scale = Random::RandomRange(10.0f, 20.0f);
-
-                    scale[i] = glm::vec3(_scale, _scale, _scale);
-
-                    rot[i] = glm::vec3(90.0f, 0.0f, 0.0f);
-
-                    textures[i] = text->GetTextureID();
-                }
-
-                res.AddComponentResources<TransformComponentResource, RenderComponentResource>(
-                    TransformComponentResource{entCount}, RenderComponentResource{entCount, textures});
-
-                ResourceManagerSystem::Get().SpawnEntities<TransformComponentResource, RenderComponentResource>(res);
-
-                const std::string meshPath = "Data/CoolMesh.obj";
-                MeshLoadingSystem::Get().ImportMesh(meshPath);
-
-                for (int32_t i = 0; i < res.entitiesCount; ++i)
-                {
-                    OpenGLSystem::Get().SetComponentMesh(meshPath, res.entities[i]);
-                }
-                */
+        ResourceManagerSystem::Get().SpawnEntities<TransformComponentResource, RenderComponentResource>(res);
     }
 
     void Engine::UninitializeEngine()

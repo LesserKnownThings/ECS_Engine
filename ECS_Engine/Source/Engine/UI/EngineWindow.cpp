@@ -8,7 +8,7 @@ namespace LKT
 	{
 		name = windowName;
 
-		TaskManagerSystem::Get().RegisterTask(this, &EngineWindow::Render, INT32_MAX - 1, RENDER_HANDLE);
+		TaskManagerSystem::Get().RegisterTask(this, &EngineWindow::Render, INT32_MAX, RENDER_HANDLE);
 	}
 
 	void EngineWindow::Uninitialize()

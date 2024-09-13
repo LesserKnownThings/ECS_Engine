@@ -49,3 +49,9 @@
 
 /ECS_Engine/CMakeCache.txt
 /ECS_Engine/cmake_install.txt
+/ECS_Engine/build
+/ECS_Engine/imgui.ini
+/ECS_Engine/Game_Build
+/ECS_Engine/Editor_Build
+/ECS_Engine/Linking
+/ECS_Engine/Include
