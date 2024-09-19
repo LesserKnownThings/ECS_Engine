@@ -1,11 +1,5 @@
 #include "AssetFactoryManager.h"
 #include "AssetFactory.h"
-#include "Assets/ParticleSystemAsset.h"
-#include "Assets/Mesh.h"
-#include "Assets/Texture.h"
-#include "EditorUI/MeshAssetViewer.h"
-#include "EditorUI/ParticleSystemWindow.h"
-#include "EditorUI/TextureAssetViewer.h"
 #include "Systems/AssetManager/AssetData.h"
 #include "Systems/AssetManager/AssetManager.h"
 #include "Systems/AssetManager/AssetPath.h"
@@ -104,9 +98,27 @@ namespace LKT
 		return false;
 	}
 
+	bool AssetFactoryManager::CreateAssetFactory(const AssetPath &fullPath, uint32_t type, std::function<void(const AssetData &)> func)
+	{
+		const AssetFactoryManager &instance = AssetFactoryManager::Get();
+		const auto it = instance.factories.find(type);
+		if (it != instance.factories.end())
+		{
+			it->second->CreateAsset(fullPath, func);
+			return true;
+		}
+		return false;
+	}
+
 	std::string AssetFactoryManager::GetExtensions()
 	{
 		return AssetFactoryManager::Get().extensionsString;
+	}
+
+	const std::unordered_map<uint32_t, AssetFactory *> &AssetFactoryManager::GetFactories()
+	{
+		const AssetFactoryManager &instance = AssetFactoryManager::Get();
+		return instance.factories;
 	}
 
 	void AssetFactoryManager::LoadSupportedExtensions()

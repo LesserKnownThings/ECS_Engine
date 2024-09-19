@@ -48,12 +48,35 @@ namespace LKT
 		return nullptr;
 	}
 
-	void AssetManager::BuildAssetRegistry()
+	void AssetManager::Initialize()
 	{
 		AssetFactoryManager::LoadSupportedExtensions();
+#if EDITOR_ONLY
+		ImportEngineAssets();
+#endif
+		BuildRegistries();
+	}
 
+	void AssetManager::BuildRegistries()
+	{
+		BuildEngineAssetRegistry();
+		BuildAssetRegistry();
+	}
+
+	void AssetManager::BuildEngineAssetRegistry()
+	{
+		BuildRegistry(engineFolder);
+	}
+
+	void AssetManager::BuildAssetRegistry()
+	{
+		BuildRegistry(contentFolder);
+	}
+
+	void AssetManager::BuildRegistry(const std::string &path)
+	{
 		std::vector<fs::path> assetPaths;
-		FileHelper::GetFilesFromDirectory(contentFolder, assetPaths, ".asset");
+		FileHelper::GetFilesFromDirectory(path, assetPaths, ".asset");
 
 		for (const fs::path &assetPath : assetPaths)
 		{
@@ -62,35 +85,62 @@ namespace LKT
 			AssetFactoryManager::LoadMetadataHeader(ap, metadata);
 			assets.emplace(ap, AssetData{ap, metadata});
 		}
-
-		LoadAssetViewTextures();
 	}
 
 #if EDITOR_ONLY
+	void AssetManager::ImportEngineAssets()
+	{
+		std::vector<fs::path> assetPaths;
+		FileHelper::GetFilesFromDirectory(engineImportPath, assetPaths);
+
+		for (const fs::path &assetPath : assetPaths)
+		{
+			const std::string extension = assetPath.extension().string();
+			if (AssetFactoryManager::SupportsExtension(extension))
+			{
+				ImportAsset(assetPath.string(), engineImportDestination);
+				fs::remove(assetPath);
+			}
+		}
+	}
+
+	uint32_t AssetManager::GetExtensionId(const AssetPath &path)
+	{
+		const AssetManager &instance = AssetManager::Get();
+		const auto it = instance.assets.find(path);
+		if (it != instance.assets.end())
+		{
+			return it->second.metadata.type;
+		}
+		return 0;
+	}
+
 	void AssetManager::CreateAsset(const std::string &currentFolderPath, uint32_t type)
 	{
-		// uint32_t index = 1;
-		// std::ostringstream oss;
-		// oss << currentFolderPath << "/NewAsset_" << index << ".asset";
-		// std::string filePath = oss.str();
-		// oss.str("");
+		AssetManager &instance = AssetManager::Get();
 
-		// AssetPath path{filePath};
-		// while (assets.contains(path))
-		// {
-		// 	++index;
-		// 	oss << currentFolderPath << "/NewAsset_" << index << ".asset";
-		// 	filePath = oss.str();
-		// 	path = AssetPath{filePath};
-		// 	oss.str("");
-		// }
+		uint32_t index = 1;
+		std::ostringstream oss;
+		oss << currentFolderPath << "/NewAsset_" << index << ".asset";
+		std::string filePath = oss.str();
+		oss.str("");
 
-		// std::ofstream stream(filePath, std::ios::binary);
-		// AssetMetadata metadata{type, static_cast<int32_t>(filePath.size()), filePath};
-		// // WriteAssetMetadataStream(metadata, stream);
-		// stream.close();
+		AssetPath path{filePath};
+		while (instance.assets.contains(path))
+		{
+			++index;
+			oss << currentFolderPath << "/NewAsset_" << index << ".asset";
+			filePath = oss.str();
+			path = AssetPath{filePath};
+			oss.str("");
+		}
 
-		// assets.emplace(path, LazyAssetPtr<Asset>(path));
+		auto func = [&instance, path](const AssetData &data)
+		{
+			instance.assets.emplace(path, data);
+		};
+
+		AssetFactoryManager::CreateAssetFactory(path, type, func);
 	}
 
 	void AssetManager::ImportAsset(const std::string &path, const std::string &currentFolder)
@@ -116,59 +166,6 @@ namespace LKT
 			return AssetFactoryManager::LoadAssetViewerFactory(it->second.metadata, path);
 		}
 		return nullptr;
-	}
-
-	uint32_t AssetManager::GetAssetTexture(const AssetPath &path)
-	{
-		const AssetManager &instance = AssetManager::Get();
-		const auto it = instance.assets.find(path);
-
-		if (it != instance.assets.end())
-		{
-			const auto textureIt = instance.assetViewTextures.find(it->second.metadata.type);
-			if (textureIt != instance.assetViewTextures.end())
-			{
-				return textureIt->second;
-			}
-		}
-		return 0;
-	}
-
-	uint32_t AssetManager::GetFolderTexture()
-	{
-		const AssetManager &instance = AssetManager::Get();
-
-		const auto it = instance.assetViewTextures.find(FOLDER);
-		if (it != instance.assetViewTextures.end())
-		{
-			return it->second;
-		}
-
-		return 0;
-	}
-
-	void AssetManager::LoadAssetViewTextures()
-	{
-		textureStorage =
-			{
-				// Attribute to https://www.flaticon.com/authors/freepik
-				AssetTextureStorage{FOLDER, "Data/Textures/Assets/folder.png"},
-				// Attribute to https://www.flaticon.com/authors/freepik
-				AssetTextureStorage{TEXTURE, "Data/Textures/Assets/texture.png"},
-				// Attribute to https://www.flaticon.com/authors/freepik
-				AssetTextureStorage{MESH, "Data/Textures/Assets/mesh.png"},
-				// Attribute to https://www.flaticon.com/authors/freepik
-				AssetTextureStorage{PARTICLESYSTEM, "Data/Textures/Assets/particle_system.png"},
-			};
-
-		for (const AssetTextureStorage &storage : textureStorage)
-		{
-			uint32_t textureID;
-			int32_t width, height;
-
-			GraphicHelpers::LoadTexture(storage.path, textureID, width, height);
-			assetViewTextures[storage.id] = textureID;
-		}
 	}
 #endif
 }

@@ -70,6 +70,18 @@ namespace LKT
 		}
 	}
 
+	bool ShaderManager::GetUBO(uint32_t uboIndex, uint32_t &outUBO)
+	{
+		const ShaderManager &instance = ShaderManager::Get();
+		const auto it = instance.ubos.find(uboIndex);
+		if (it != instance.ubos.end())
+		{
+			outUBO = it->second;
+			return true;
+		}
+		return false;
+	}
+
 	void ShaderManager::SetInt(const std::string &name, int32_t value)
 	{
 		if (ShaderProgram *sp = GetActiveShader())
@@ -120,6 +132,11 @@ namespace LKT
 
 	void ShaderManager::LoadEngineShaders()
 	{
+		/**
+		 * This is hardcoded will look for a better way to do it
+		 */
+		LoadUBOs();
+
 		std::vector<std::string> shaderFiles;
 
 		FileHelper::GetFilesFromDirectory(engineShadersPath, shaderFiles);
@@ -173,5 +190,20 @@ namespace LKT
 		}
 
 		onPostCompile.Invoke();
+	}
+
+	void ShaderManager::LoadUBOs()
+	{
+		uint32_t ubo;
+
+		// Matrices
+		glGenBuffers(1, &ubo);
+		glBindBuffer(GL_UNIFORM_BUFFER, ubo);
+		glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, nullptr, GL_STATIC_DRAW);
+		glBindBuffer(GL_UNIFORM_BUFFER, 0);
+		glBindBufferRange(GL_UNIFORM_BUFFER, 0, ubo, 0, 2 * sizeof(glm::mat4));
+		ubos.emplace(MATRICES_UBO_INDEX, ubo);
+
+		// Lights (TODO)
 	}
 }

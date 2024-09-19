@@ -21,19 +21,36 @@ namespace LKT
 
         if (stream.is_open())
         {
-            CreateAssetMetadata(assetPath, importedAssetPath, stream, metadata);
+            CreateAssetMetadata(assetPath, stream, metadata);
             RegisterMetadataData(stream, importedAssetPath);
         }
 
         stream.close();
-
         outData = {AssetData{assetPath, metadata}};
+    }
+
+    void AssetFactory::CreateAsset(const AssetPath &path, std::function<void(const AssetData &)> func)
+    {
+        AssetMetadata metadata;
+        std::ofstream stream(path.fullPath, std::ios::binary);
+
+        if (stream.is_open())
+        {
+            CreateAssetMetadata(path, stream, metadata);
+            // This should be used for asset creation from the creation menu, so there's no imported asset
+            RegisterMetadataData(stream, "");
+        }
+
+        stream.close();
+        func(AssetData{path, metadata});
     }
 
     Asset *AssetFactory::LoadAsset(const AssetMetadata &metadata)
     {
         Asset *asset = AssetFunc();
-        asset->LoadAsset(LoadAssetBuffer(metadata));
+        void *buffer = LoadAssetBuffer(metadata);
+        asset->LoadAsset(buffer);
+        free(buffer);
         return asset;
     }
 
@@ -50,7 +67,6 @@ namespace LKT
 #endif
 
     void AssetFactory::CreateAssetMetadata(const AssetPath &path,
-                                           const std::string &importedAssetPath,
                                            std::ofstream &outStream,
                                            AssetMetadata &outMetadata)
     {
@@ -73,6 +89,14 @@ namespace LKT
         if (stream.is_open())
         {
             buffer = FileHelper::GetBufferFromStream(stream, offset);
+        }
+        else if (stream.fail())
+        {
+            std::cout << "Failed to open" << std::endl;
+        }
+        else if (stream.bad())
+        {
+            std::cerr << "I/O error while opening file (badbit set).\n";
         }
         stream.close();
 

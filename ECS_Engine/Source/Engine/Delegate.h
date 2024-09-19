@@ -14,6 +14,7 @@ namespace LKT
 #define DECLARE_DELEGATE(name) FUNC_BIND_DELEGATE(name)
 #define DECLARE_DELEGATE_OneParam(name, param_1) FUNC_BIND_DELEGATE(name, param_1)
 #define DECLARE_DELEGATE_TwoParams(name, param_1, param_2) FUNC_BIND_DELEGATE(name, param_1, param_2)
+#define DECLARE_DELEGATE_ThreeParams(name, param_1, param_2, param_3) FUNC_BIND_DELEGATE(name, param_1, param_2, param_3)
 
 	template <typename... Args>
 	class Delegate

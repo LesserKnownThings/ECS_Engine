@@ -17,7 +17,6 @@ namespace LKT
 
 	ParticleSystem::ParticleSystem()
 	{
-		// TODO For testing only, will remove this once emitters can be created from UI
 		CreateEmitter();
 	}
 
@@ -88,9 +87,19 @@ namespace LKT
 		return success;
 	}
 
+	void ParticleSystem::SerializeInitialData(std::ofstream &stream)
+	{
+		const EParticleSimType defaultSimType = CPU;
+		const int32_t defaultEmitterCount = 1;
+
+		stream.write(reinterpret_cast<const char *>(&defaultSimType), sizeof(EParticleSimType));
+		stream.write(reinterpret_cast<const char *>(&defaultEmitterCount), sizeof(int32_t));
+		ParticleEmitter::SerializeInitialData(stream);
+	}
+
 	void ParticleSystem::CreateEmitter()
 	{
-		ParticleEmitter *emitter = new ParticleEmitter(simType);
+		ParticleEmitter *emitter = new ParticleEmitter(this);
 		emitters.push_back(emitter);
 	}
 }

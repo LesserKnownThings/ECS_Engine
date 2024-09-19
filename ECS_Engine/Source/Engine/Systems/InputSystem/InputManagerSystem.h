@@ -16,6 +16,7 @@ namespace LKT
 	DECLARE_DELEGATE(OnWindowResized);
 
 	DECLARE_DELEGATE_OneParam(MouseActionDelegate, const SDL_MouseButtonEvent &);
+	DECLARE_DELEGATE_OneParam(MouseScrollDelegate, float);
 
 	class InputManagerSystem
 	{
@@ -37,6 +38,7 @@ namespace LKT
 
 		MouseActionDelegate onMousePressed;
 		MouseActionDelegate onMouseReleased;
+		MouseScrollDelegate onMouseScroll;
 
 		// For continous mouse press
 		MouseActionDelegate onMouseDown;

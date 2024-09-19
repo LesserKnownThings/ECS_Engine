@@ -1,18 +1,18 @@
-#include "ParticleSystemWindow.h"
+#include "ParticleSystemAssetViewer.h"
 #include "Assets/ParticleSystemAsset.h"
 #include "imgui/imgui.h"
 #include "Systems/ParticleSystem/ParticleSystem.h"
-#include "Systems/RenderBufferSystem.h"
+#include "Systems/Rendering/RenderBufferObject.h"
 #include "Systems/TaskManagerSystem.h"
 
 namespace LKT
 {
-	ParticleSystemWindow::~ParticleSystemWindow()
+	ParticleSystemAssetViewer::~ParticleSystemAssetViewer()
 	{
 		TaskManagerSystem::Get().RemoveAllTasks(this);
 	}
 
-	ParticleSystemWindow::ParticleSystemWindow(LazyAssetPtr<Asset> &inAsset)
+	ParticleSystemAssetViewer::ParticleSystemAssetViewer(LazyAssetPtr<Asset> &inAsset)
 		: AssetViewerWindow(inAsset)
 	{
 		if (ParticleSystemAsset *particleSystemAsset = asset.Get<ParticleSystemAsset>())
@@ -20,13 +20,13 @@ namespace LKT
 			ps = particleSystemAsset->GetParticleSystem();
 		}
 
-		availableY = 300;
-		availableX = 300;
+		availableX = 1920;
+		availableY = 1080;
 
-		TaskManagerSystem::Get().RegisterTask(this, &ParticleSystemWindow::SimulateAsset);
+		TaskManagerSystem::Get().RegisterTask(this, &ParticleSystemAssetViewer::SimulateAsset, 0, PROCESS_HANDLE);
 	}
 
-	void ParticleSystemWindow::RenderContent()
+	void ParticleSystemAssetViewer::RenderContent()
 	{
 		if (ps != nullptr)
 		{
@@ -40,8 +40,8 @@ namespace LKT
 
 				ImVec2 availableSize = ImGui::GetContentRegionAvail();
 
-				uint32_t bufferTex = 0;
-				if (RenderBufferSystem::Get().GetBufferTexture(this, bufferTex))
+				const uint32_t bufferTex = renderBuffer->GetTextureId();
+				if (bufferTex != 0)
 				{
 					ImTextureID texture = reinterpret_cast<ImTextureID>(bufferTex);
 					ImGui::Image((void *)(intptr_t)bufferTex, ImVec2(480, 270), ImVec2(0, 1), ImVec2(1, 0));
@@ -88,13 +88,10 @@ namespace LKT
 				if (childSize.y < 100)
 					childSize.y = 100;
 			}
-
-			// Optionally, draw a small visual handle for resizing
-			ImGui::GetWindowDrawList()->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(255, 255, 255, 255));
 		}
 	}
 
-	void ParticleSystemWindow::RenderAsset()
+	void ParticleSystemAssetViewer::RenderAssetContent()
 	{
 		if (ps != nullptr)
 		{
@@ -102,7 +99,7 @@ namespace LKT
 		}
 	}
 
-	void ParticleSystemWindow::SimulateAsset(float deltaTime)
+	void ParticleSystemAssetViewer::SimulateAsset(float deltaTime)
 	{
 		if (ps != nullptr)
 		{

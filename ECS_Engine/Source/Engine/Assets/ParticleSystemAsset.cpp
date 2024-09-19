@@ -9,14 +9,9 @@ namespace LKT
         particleSystem = nullptr;
     }
 
-    bool ParticleSystemAsset::Serialize(std::ofstream &outStream) const
-    {
-        return particleSystem->Serialize(outStream);
-    }
-
-    bool ParticleSystemAsset::Deserialize(std::ifstream &inStream)
+    void ParticleSystemAsset::LoadAsset(void *buffer)
     {
         particleSystem = new ParticleSystem();
-        return particleSystem->Deserialize(inStream);
+        // particleSystem->Deserialize(inStream);
     }
 }

@@ -13,11 +13,7 @@ namespace LKT
         void UnloadAsset() override;
 
     protected:
-        // It's empty since this asset saves everything to the binary instead of the metadata portion
-        void LoadAsset(void *buffer) override {}
-
-        bool Serialize(std::ofstream &outStream) const override;
-        bool Deserialize(std::ifstream &inStream) override;
+        void LoadAsset(void *buffer) override;
 
     private:
         ParticleSystem *particleSystem = nullptr;

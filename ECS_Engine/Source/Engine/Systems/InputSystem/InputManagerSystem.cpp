@@ -21,7 +21,7 @@ namespace LKT
 
 	InputManagerSystem::InputManagerSystem()
 	{
-		TaskManagerSystem::Get().RegisterTask(this, &InputManagerSystem::ProcessInput, 0);
+		TaskManagerSystem::Get().RegisterTask(this, &InputManagerSystem::ProcessInput, 0, PROCESS_HANDLE);
 	}
 
 	void InputManagerSystem::ProcessInput(float deltaTime)
@@ -74,6 +74,10 @@ namespace LKT
 			{
 				onMouseReleased.Invoke(e.button);
 				pressedMouseButtons &= ~e.button.button;
+			}
+			else if (e.type == SDL_EVENT_MOUSE_WHEEL)
+			{
+				onMouseScroll.Invoke(e.button.x);
 			}
 
 			ImGui_ImplSDL3_ProcessEvent(&e);

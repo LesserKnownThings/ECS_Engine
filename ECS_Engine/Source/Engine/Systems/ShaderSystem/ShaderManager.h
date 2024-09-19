@@ -10,9 +10,12 @@
 
 namespace LKT
 {
-	DECLARE_DELEGATE(OnPostCompile)
-
 	class ShaderProgram;
+
+	constexpr uint32_t MATRICES_UBO_INDEX = 0;
+	constexpr uint32_t LIGHTS_UBO_INDEX = 1;
+
+	DECLARE_DELEGATE(OnPostCompile);
 
 	// TODO create a cache for the shader manager so that I don't have to compile all shaders on engine startup
 	class ShaderManager
@@ -35,6 +38,7 @@ namespace LKT
 		 * it will get stuck in a weird loop where other things won't render because they're using the wrong shader
 		 */
 		static void ActivateLastShader();
+		static bool GetUBO(uint32_t uboIndex, uint32_t &outUBO);
 
 		void SetInt(const std::string &name, int32_t value);
 		void SetFloat(const std::string &name, float value);
@@ -48,6 +52,7 @@ namespace LKT
 
 	private:
 		void LoadEngineShaders();
+		void LoadUBOs();
 
 		std::string activeShader;
 		std::string lastActiveShader;
@@ -55,6 +60,7 @@ namespace LKT
 		const std::string engineShadersPath = "Data/EngineShaders";
 
 		std::unordered_map<std::string, ShaderProgram *> engineShaders;
+		std::unordered_map<uint32_t, uint32_t> ubos;
 
 		friend class Engine;
 	};

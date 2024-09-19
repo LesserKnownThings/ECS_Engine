@@ -6,6 +6,7 @@
 #include "ParticleShapeData.h"
 #include "ParticleSimType.h"
 #include "Systems/AssetManager/ISerializable.h"
+#include "Systems/AssetManager/LazyAssetPtr.h"
 
 #include <cstdint>
 #include <functional>
@@ -13,6 +14,8 @@
 
 namespace LKT
 {
+	class Asset;
+	class ParticleSystem;
 	class ParticleEmitterShape;
 	class ShaderProgram;
 
@@ -40,15 +43,13 @@ namespace LKT
 		Color initialColor = Color::white;
 
 		uint32_t rate = 10;
-		uint32_t maxAmount = 1500;
+		uint32_t maxAmount = 10500;
 
 		float speed = 5.0f;
 		float lifetime = 5.0f;
 
 		bool useGravity = false;
 		bool isLocal = false;
-
-		EParticleSimType simType = CPU;
 	};
 
 	struct ParticleDataCPU
@@ -74,17 +75,16 @@ namespace LKT
 		bool Serialize(std::ofstream &outStream) const override;
 		bool Deserialize(std::ifstream &inStream) override;
 
-	private:
-		ParticleEmitter(EParticleSimType type);
+		static void SerializeInitialData(std::ofstream &stream);
 
-		void SetSimType(EParticleSimType type);
+	private:
+		ParticleEmitter(ParticleSystem *inParent);
 
 		void Simulate(float deltaTime);
 		void SimulateGPU(float deltaTime);
 		void SimulateCPU(float deltaTime);
 
 		void Render();
-		void RenderGPU();
 		void RenderCPU();
 
 		void CreateGPUParticles(std::function<void(ParticleData *pd, ParticleInitialData *pid)> func);
@@ -97,7 +97,6 @@ namespace LKT
 		void CreateComputerBuffers();
 
 		void SetupCPUVertexBuffers();
-		void SetupGPUVertexBuffers();
 
 		void AllocateMemory(int32_t size);
 
@@ -108,10 +107,13 @@ namespace LKT
 		ParticleDataCPU particleDataCPU;
 
 		uint32_t elementsCount;
-		uint32_t vao, ebo, vbo, perIndexVbo, ssbo, initialSsbo;
+		uint32_t perIndexVbo, ssbo, initialSsbo;
 		glm::mat4 model = glm::mat4(1.0f);
 
+		ParticleSystem *parent = nullptr;
+		LazyAssetPtr<Asset> particleMesh;
+
 		friend class ParticleSystem;
-		friend class ParticleSystemWindow;
+		friend class ParticleSystemAssetViewer;
 	};
 }

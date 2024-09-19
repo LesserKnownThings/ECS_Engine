@@ -21,6 +21,7 @@ namespace LKT
 		if (isShowing)
 		{
 			ImGui::Begin(name.c_str(), &isShowing, windowFlags);
+			isFocused = ImGui::IsWindowFocused();
 			RenderContent();
 			ImGui::End();
 		}

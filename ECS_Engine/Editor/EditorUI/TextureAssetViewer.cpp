@@ -8,7 +8,7 @@ namespace LKT
     TextureAssetViewer::TextureAssetViewer(LazyAssetPtr<Asset> &inAsset)
         : AssetViewerWindow(inAsset)
     {
-        windowCustomFlags &= ~(WINDOW_SUPPORT_RENDER_BUFFER | WINDOW_SUPPORT_CAMERA);
+        windowCustomFlags &= ~(WINDOW_SUPPORT_RENDER_BUFFER);
     }
 
     void TextureAssetViewer::RenderContent()

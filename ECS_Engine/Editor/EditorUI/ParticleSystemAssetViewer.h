@@ -6,15 +6,15 @@ namespace LKT
 {
 	class ParticleSystem;
 
-	class ParticleSystemWindow : public AssetViewerWindow
+	class ParticleSystemAssetViewer : public AssetViewerWindow
 	{
 	public:
-		~ParticleSystemWindow();
-		ParticleSystemWindow(LazyAssetPtr<Asset> &inAsset);
+		~ParticleSystemAssetViewer();
+		ParticleSystemAssetViewer(LazyAssetPtr<Asset> &inAsset);
 
 	protected:
 		void RenderContent() override;
-		void RenderAsset() override;
+		void RenderAssetContent() override;
 
 	private:
 		void SimulateAsset(float deltaTime);

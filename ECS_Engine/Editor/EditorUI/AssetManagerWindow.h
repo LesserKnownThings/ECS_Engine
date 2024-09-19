@@ -9,6 +9,10 @@
 
 namespace LKT
 {
+    class Asset;
+    template <typename T>
+    class LazyAssetPtr;
+
     struct FileBrowserSettings
     {
         float columnX = 100.0f;
@@ -45,12 +49,17 @@ namespace LKT
         void HandleMouseButtonReleased(const SDL_MouseButtonEvent &mouseEvent);
         void HandleFileDialogClosed(const std::string &filePath);
 
+        void LoadTextureDisplayAssets();
+
         const std::string defaultDirectory = "Content";
+        const std::string engineDefaultDirectory = "Data/Content/Assets";
         std::string currentSelection;
         std::string innerSelection;
 
         std::string parentSelection;
         bool forceExpand = false;
+
+        std::unordered_map<uint32_t, LazyAssetPtr<Asset>> textureDisplayAssets;
 
         FileBrowserSettings fileBrowserSettings;
     };

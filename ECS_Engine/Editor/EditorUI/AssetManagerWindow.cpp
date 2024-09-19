@@ -1,7 +1,10 @@
 #include "AssetManagerWindow.h"
+#include "Assets/Texture.h"
 #include "imgui/imgui.h"
+#include "Systems/AssetManager/AssetFactory/AssetFactory.h"
 #include "Systems/AssetManager/AssetFactory/AssetFactoryManager.h"
 #include "Systems/AssetManager/AssetManager.h"
+#include "Systems/AssetManager/LazyAssetPtr.h"
 #include "Systems/InputSystem/InputManagerSystem.h"
 #include "UI/UIManager.h"
 
@@ -34,6 +37,7 @@ namespace LKT
     {
         EngineWindow::Initialize(windowName);
 
+        LoadTextureDisplayAssets();
         InputManagerSystem::Get().onMouseReleased.Bind(this, &AssetManagerWindow::HandleMouseButtonReleased);
 
         windowFlags |= ImGuiWindowFlags_MenuBar;
@@ -44,6 +48,37 @@ namespace LKT
         InputManagerSystem::Get().onMouseReleased.Clear(this);
 
         EngineWindow::Uninitialize();
+    }
+
+    void AssetManagerWindow::LoadTextureDisplayAssets()
+    {
+        // Folder
+        auto folderFunc = [this](const LazyAssetPtr<Asset> &asset)
+        {
+            textureDisplayAssets.emplace(FOLDER, asset.StrongRef());
+        };
+        AssetManager::GetAsset(AssetPath("Data/Content/Assets/Folder.asset"), folderFunc);
+
+        // Mesh
+        auto meshFunc = [this](const LazyAssetPtr<Asset> &asset)
+        {
+            textureDisplayAssets.emplace(MESH, asset.StrongRef());
+        };
+        AssetManager::GetAsset(AssetPath("Data/Content/Assets/Mesh.asset"), meshFunc);
+
+        // Texture
+        auto textureFunc = [this](const LazyAssetPtr<Asset> &asset)
+        {
+            textureDisplayAssets.emplace(TEXTURE, asset.StrongRef());
+        };
+        AssetManager::GetAsset(AssetPath("Data/Content/Assets/Texture.asset"), textureFunc);
+
+        // Particle system
+        auto particleFunc = [this](const LazyAssetPtr<Asset> &asset)
+        {
+            textureDisplayAssets.emplace(PARTICLESYSTEM, asset.StrongRef());
+        };
+        AssetManager::GetAsset(AssetPath("Data/Content/Assets/Particles.asset"), particleFunc);
     }
 
     void AssetManagerWindow::RenderContent()
@@ -65,6 +100,16 @@ namespace LKT
             else if (DrawTree(fs::path(defaultDirectory)))
             {
                 BrowseDirectory(defaultDirectory);
+                ImGui::TreePop();
+            }
+
+            if (LKT::DirectoryIsEmpty(engineDefaultDirectory))
+            {
+                DrawLeaf(engineDefaultDirectory);
+            }
+            else if (DrawTree(fs::path(engineDefaultDirectory)))
+            {
+                BrowseDirectory(engineDefaultDirectory);
                 ImGui::TreePop();
             }
 
@@ -100,16 +145,16 @@ namespace LKT
 
             if (ImGui::BeginMenu("Create"))
             {
-                // for (const auto &it : AssetFactory::GetFactories())
-                // {
-                //     if (it.second.canCreate)
-                //     {
-                //         if (ImGui::MenuItem(it.second.displayName.c_str()))
-                //         {
-                //             AssetManager::Get().CreateAsset(currentSelection, it.second.type);
-                //         }
-                //     }
-                // }
+                for (const auto &it : AssetFactoryManager::GetFactories())
+                {
+                    if (it.second->CanCreateFromMenu())
+                    {
+                        if (ImGui::MenuItem(it.second->GetMenuDisplayName().c_str()))
+                        {
+                            AssetManager::Get().CreateAsset(currentSelection, it.second->GetType());
+                        }
+                    }
+                }
 
                 ImGui::EndMenu();
             }
@@ -270,9 +315,23 @@ namespace LKT
         if (!entry.is_directory())
         {
             AssetPath assetPath{entry.path()};
-            uint32_t textureID = AssetManager::GetAssetTexture(assetPath);
-            ImTextureID texture = reinterpret_cast<ImTextureID>(textureID);
 
+            const uint32_t extensionId = AssetManager::GetExtensionId(assetPath);
+
+            uint32_t textureID = 0;
+            if (extensionId != 0)
+            {
+                const auto &textureAssetIt = textureDisplayAssets.find(extensionId);
+                if (textureAssetIt != textureDisplayAssets.end())
+                {
+                    if (const Texture *textAsset = textureAssetIt->second.Get<Texture>())
+                    {
+                        textureID = textAsset->GetTextureID();
+                    }
+                }
+            }
+
+            ImTextureID texture = reinterpret_cast<ImTextureID>(textureID);
             ImGui::Image(texture, ImVec2(fileBrowserSettings.textureX, fileBrowserSettings.textureY));
 
             currentPos = ImGui::GetCursorPos();
@@ -297,7 +356,16 @@ namespace LKT
         }
         else
         {
-            const uint32_t textureID = AssetManager::Get().GetFolderTexture();
+            uint32_t textureID = 0;
+            const auto folderAssetIt = textureDisplayAssets.find(FOLDER);
+            if (folderAssetIt != textureDisplayAssets.end())
+            {
+                if (const Texture *textAsset = folderAssetIt->second.Get<Texture>())
+                {
+                    textureID = textAsset->GetTextureID();
+                }
+            }
+
             ImTextureID texture = reinterpret_cast<ImTextureID>(textureID);
 
             ImGui::Image(texture, ImVec2(fileBrowserSettings.textureX, fileBrowserSettings.textureY));

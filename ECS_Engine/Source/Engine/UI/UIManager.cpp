@@ -108,16 +108,17 @@ namespace LKT
 
 	void UIManager::RequestAssetViewer(const AssetPath &assetPath)
 	{
-		const auto it = uniqueWindows.find(assetPath.fullPath);
-		if (it != uniqueWindows.end())
+		const auto it = windows.find(assetPath.fullPath);
+		if (it != windows.end())
 		{
-			it->second->Focus();
+			// TODO will probably remove this, since it's not very useful
+			// it->second->Focus();
 			return;
 		}
 
 		if (AssetViewerWindow *assetViewer = AssetManager::LoadAssetViewer(assetPath))
 		{
-			uniqueWindows[assetPath.fullPath] = assetViewer;
+			windows[assetPath.fullPath] = assetViewer;
 		}
 	}
 
@@ -156,13 +157,13 @@ namespace LKT
 	{
 		if (window != nullptr)
 		{
-			const auto it = uniqueWindows.find(window->GetAssetPath().fullPath);
+			const auto it = windows.find(window->GetAssetPath().fullPath);
 
-			if (it != uniqueWindows.end())
+			if (it != windows.end())
 			{
 				it->second->Uninitialize();
 				delete it->second;
-				uniqueWindows.erase(it);
+				windows.erase(it);
 			}
 		}
 	}

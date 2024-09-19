@@ -46,7 +46,6 @@ namespace LKT
     Engine::Engine()
     {
         instance = this;
-
         InitializeEngine();
     }
 
@@ -80,11 +79,11 @@ namespace LKT
 
             currentTicks = newTicks;
 
-            uint32_t frameStart = SDL_GetTicks();
+            const uint32_t frameStart = SDL_GetTicks();
 
             HandleSystems();
 
-            uint32_t frameDuration = SDL_GetTicks() - frameStart;
+            const uint32_t frameDuration = SDL_GetTicks() - frameStart;
 
             if (FRAME_RATE > frameDuration)
             {
@@ -95,18 +94,23 @@ namespace LKT
 
     void Engine::InitializeEngine()
     {
-        if (InitializeEverything())
+        if (InitializeCore())
         {
+            AssetManager::Get().Initialize();
+            InitializeUI();
             InitializeMisc();
             LoadShaders();
 
             isRunning = true;
+            /**
+             * This is running in a loop so the Uninitialize will be called after loop ends
+             */
             RunEngine();
             UninitializeEngine();
         }
     }
 
-    bool Engine::InitializeEverything()
+    bool Engine::InitializeCore()
     {
         return InitializeSDL() && InitializeOpenGL();
     }
@@ -141,32 +145,7 @@ namespace LKT
 
     void Engine::InitializeMisc()
     {
-        InitializeUI();
-
-        AssetManager::Get().BuildAssetRegistry();
-
         InputManagerSystem::Get().onCloseAppDelegate.Bind(this, &Engine::HandleCloseEngine);
-
-        int32_t entCount = 1;
-
-        EntityResource res{entCount};
-        glm::vec3 *position = new glm::vec3[entCount];
-        glm::vec3 *rot = new glm::vec3[entCount];
-        glm::vec3 *scale = new glm::vec3[entCount];
-
-        for (int32_t i = 0; i < entCount; ++i)
-        {
-            position[i] = glm::vec3(Random::RandomRange(-250.0f, 250.0f), Random::RandomRange(-250.0f, 250.0f),
-                                    Random::RandomRange(-250.0f, 250.0f));
-
-            const float _scale = Random::RandomRange(10.0f, 20.0f);
-            scale[i] = glm::vec3(_scale, _scale, _scale);
-        }
-
-        res.AddComponentResources<TransformComponentResource, RenderComponentResource>(
-            TransformComponentResource{entCount, position, nullptr, scale}, RenderComponentResource{entCount});
-
-        ResourceManagerSystem::Get().SpawnEntities<TransformComponentResource, RenderComponentResource>(res);
     }
 
     void Engine::UninitializeEngine()
@@ -181,7 +160,7 @@ namespace LKT
 
     void Engine::HandleSystems()
     {
-        TaskManagerSystem::Get().ExecuteTasks(std::nullopt, deltaTime);
+        TaskManagerSystem::Get().ExecuteTasks(PROCESS_HANDLE, deltaTime);
         OpenGLSystem::Get().Render();
     }
 

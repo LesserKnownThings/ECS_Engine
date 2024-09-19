@@ -1,5 +1,6 @@
 #include "OpenGLSystem.h"
 #include "imgui/imgui.h"
+#include "imgui/ImGuizmo.h"
 #include "imgui/backends/imgui_impl_sdl3.h"
 #include "imgui/backends/imgui_impl_opengl3.h"
 #include "glew/glew.h"
@@ -142,6 +143,7 @@ namespace LKT
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplSDL3_NewFrame();
 		ImGui::NewFrame();
+		ImGuizmo::BeginFrame();
 	}
 
 	void OpenGLSystem::Render()
@@ -218,7 +220,7 @@ namespace LKT
 		memcpy(&renderComponent.textureID[startingIndex], modBuffer + entityCount * 4, size);
 	}
 
-	void OpenGLSystem::ResetViewport()
+	void OpenGLSystem::ResetViewportAndScissor()
 	{
 		glViewport(0, 0, width, height);
 		glScissor(0, 0, width, height);

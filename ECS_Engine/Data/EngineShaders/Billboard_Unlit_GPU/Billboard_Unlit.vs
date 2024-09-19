@@ -21,7 +21,7 @@ layout(std140) uniform Matrices {
   mat4 view;
 };
 
-uniform mat4 model;
+uniform mat4 model = mat4(1);
 
 out vec4 color;
 

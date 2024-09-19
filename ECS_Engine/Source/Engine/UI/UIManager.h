@@ -65,7 +65,6 @@ namespace LKT
 		std::unordered_map<std::string, WindowFactoryData> factories;
 
 		std::unordered_map<std::string, EngineWindow *> windows;
-		std::unordered_map<std::string, AssetViewerWindow *> uniqueWindows;
 
 #if EDITOR_ONLY
 		EditorMainWindow *mainWindow = nullptr;

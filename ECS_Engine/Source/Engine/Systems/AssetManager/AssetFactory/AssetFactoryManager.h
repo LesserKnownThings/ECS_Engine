@@ -23,6 +23,7 @@ namespace LKT
 
 		static void LoadSupportedExtensions();
 		static std::string GetExtensions();
+		static const std::unordered_map<uint32_t, AssetFactory *> &GetFactories();
 
 		static bool SupportsExtension(const std::string &extension);
 		static uint32_t GetAssetExtensionId(const std::string &extension);
@@ -33,6 +34,7 @@ namespace LKT
 		static bool ImportAssetFactory(const std::string &path,
 									   const std::string &currentFolder,
 									   std::vector<AssetData> &outData);
+		static bool CreateAssetFactory(const AssetPath &fullPath, uint32_t type, std::function<void(const AssetData &)> func);
 
 		void RegisterFactory(AssetFactory *newFactory, uint32_t factoryId);
 

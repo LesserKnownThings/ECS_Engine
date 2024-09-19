@@ -39,9 +39,6 @@ namespace LKT
 
         uint32_t id;
         std::string shaderName;
-
-        const uint32_t matricesUBOIndex = 0;
-        const uint32_t lightUBOIndex = 1;
     };
 }
 #endif

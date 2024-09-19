@@ -39,7 +39,7 @@ namespace LKT
 		uint32_t CreateComponent(const Entity &e, void *componentData) override;
 		void CreateComponents(int32_t entityCount, Entity *entities, void *componentData) override;
 
-		void ResetViewport();
+		void ResetViewportAndScissor();
 
 		bool GetComponent(const Entity &e, uint32_t &outComponent) const;
 		static void GetViewportSize(float &x, float &y);

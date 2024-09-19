@@ -4,6 +4,8 @@
 
 namespace LKT
 {
+#define EngineInstance Engine::Get()
+
 	class InputSystem;
 	class OpenGLSystem;
 
@@ -26,18 +28,17 @@ namespace LKT
 		void RunEngine();
 
 		void InitializeEngine();
-		bool InitializeEverything();
-		bool InitializeSDL();
+		bool InitializeCore();
 		bool InitializeOpenGL();
+		bool InitializeSDL();
+
 		void InitializeUI();
 		void InitializeMisc();
 
 		void UninitializeEngine();
 
 		void LoadShaders();
-
 		void HandleSystems();
-
 		void HandleCloseEngine();
 
 		bool isRunning = false;

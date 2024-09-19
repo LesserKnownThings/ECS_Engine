@@ -40,6 +40,9 @@ namespace LKT
     public:
         virtual void SetExtensions() = 0;
         virtual uint32_t GetType() = 0;
+        virtual bool CanCreateFromMenu() const { return false; }
+        virtual std::string GetMenuDisplayName() const { return ""; }
+
         void SetType(uint32_t inType) { type = inType; }
 
         /**
@@ -50,6 +53,7 @@ namespace LKT
         virtual void CreateAsset(const std::string &importedAssetPath,
                                  const std::string &currentFolderPath,
                                  std::vector<AssetData> &outData);
+        virtual void CreateAsset(const AssetPath &path, std::function<void(const AssetData &)> func);
 
         Asset *LoadAsset(const AssetMetadata &metadata);
 
@@ -64,7 +68,6 @@ namespace LKT
 
     protected:
         void CreateAssetMetadata(const AssetPath &path,
-                                 const std::string &importedAssetPath,
                                  std::ofstream &outStream,
                                  AssetMetadata &outMetadata);
         void *LoadAssetBuffer(const AssetMetadata &metadata);

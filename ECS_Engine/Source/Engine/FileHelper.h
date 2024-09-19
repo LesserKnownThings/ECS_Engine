@@ -35,25 +35,7 @@ namespace LKT
 			return fs::exists(path);
 		}
 
-		static void GetFilesFromDirectory(const std::string &folderPath, std::vector<std::string> &files)
-		{
-			try
-			{
-				for (const auto &entry : fs::directory_iterator(folderPath))
-				{
-					if (entry.is_regular_file())
-					{
-						files.push_back(entry.path().string());
-					}
-				}
-			}
-			catch (const fs::filesystem_error &e)
-			{
-				std::cerr << "Error: " << e.what() << std::endl;
-			}
-		}
-
-		static void GetFilesFromDirectory(const std::string &folderPath, std::vector<fs::path> &files, const std::string &extension, bool recursive = true)
+		static void GetFilesFromDirectory(const std::string &folderPath, std::vector<std::string> &files, bool recursive = false)
 		{
 			try
 			{
@@ -61,7 +43,7 @@ namespace LKT
 				{
 					for (const auto &entry : fs::recursive_directory_iterator(folderPath))
 					{
-						if (entry.is_regular_file() && entry.path().extension().string() == extension)
+						if (entry.is_regular_file())
 						{
 							files.push_back(entry.path());
 						}
@@ -71,7 +53,38 @@ namespace LKT
 				{
 					for (const auto &entry : fs::directory_iterator(folderPath))
 					{
-						if (entry.is_regular_file() && entry.path().extension().string() == extension)
+						if (entry.is_regular_file())
+						{
+							files.push_back(entry.path().string());
+						}
+					}
+				}
+			}
+			catch (const fs::filesystem_error &e)
+			{
+				std::cerr << "Error: " << e.what() << std::endl;
+			}
+		}
+
+		static void GetFilesFromDirectory(const std::string &folderPath, std::vector<fs::path> &files, const std::string &extension = "", bool recursive = true)
+		{
+			try
+			{
+				if (recursive)
+				{
+					for (const auto &entry : fs::recursive_directory_iterator(folderPath))
+					{
+						if (entry.is_regular_file() && (extension.empty() || entry.path().extension().string() == extension))
+						{
+							files.push_back(entry.path());
+						}
+					}
+				}
+				else
+				{
+					for (const auto &entry : fs::directory_iterator(folderPath))
+					{
+						if (entry.is_regular_file() && (extension.empty() || entry.path().extension().string() == extension))
 						{
 							files.push_back(entry.path());
 						}

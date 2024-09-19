@@ -21,32 +21,6 @@ namespace LKT
 
 	struct AssetData;
 
-	struct AssetTextureStorage
-	{
-		uint32_t id;
-		std::string path;
-	};
-
-	/**
-	 * If you look at both folder for assets Data (Engine) and Content (Game) you will find the structure a bit weird
-	 * Let me explain how exactly that works:
-	 *
-	 * The Data(Engine):
-	 * 1. It has a Content folder which will be loaded as assets when the editor starts
-	 * 2. It has a shader folder that contains all the engine shaders
-	 * 3. It has a texture folder that contains textures that will not be loaded as assets, but as textures.
-	 * These are used by the Content Browsers to display assets. The reason I'm not loading them as
-	 * LazyAssets is because there's not a lot of textures and in most cases they will always be on screen.
-	 * So I don't want to create/delete a texture every time I open a new folder.
-	 *
-	 * There's also an exception for the Texture folder. The assets
-	 *
-	 * The Content (Game)
-	 * Everything in this folder and subfolders will be loaded in the asset manager in the editor. I'm saying in the editor.
-	 * The reason I'm saying in the editor is because the build system will only move the assets that are referenced in the
-	 * folder so when the game is launched (no editor) everything will be read from the Content folder, but it won't be the
-	 * same assets as the editor.
-	 */
 	class AssetManager
 	{
 	public:
@@ -56,25 +30,37 @@ namespace LKT
 		static Asset *LoadAsset(const AssetPath &path);
 
 #if EDITOR_ONLY
+		static uint32_t GetExtensionId(const AssetPath &path);
 		static void CreateAsset(const std::string &currentFolderPath, uint32_t type);
 		static void ImportAsset(const std::string &path, const std::string &currentFolder);
 
 		static AssetViewerWindow *LoadAssetViewer(const AssetPath &path);
-		static uint32_t GetAssetTexture(const AssetPath &path);
-		static uint32_t GetFolderTexture();
 #endif
 
 	private:
+		void Initialize();
+		void BuildRegistries();
 		void BuildAssetRegistry();
+		void BuildEngineAssetRegistry();
+		void BuildRegistry(const std::string &path);
 
 		const std::string contentFolder = "Content";
+
+		/**
+		 * The asset manager does not load the assets, it only keeps a lazy asset
+		 * The factory manager loads the assets when required, but if you decide
+		 * to do something manual, you will need to make sure to load the asset
+		 * before using it.
+		 */
 		std::unordered_map<AssetPath, AssetData, AssetPathHash> assets;
 
-#if EDITOR_ONLY
-		void LoadAssetViewTextures();
+		const std::string engineFolder = "Data/Content/Assets";
 
-		std::unordered_map<uint32_t, uint32_t> assetViewTextures;
-		std::vector<AssetTextureStorage> textureStorage;
+#if EDITOR_ONLY
+		void ImportEngineAssets();
+
+		const std::string engineImportPath = "Data/Import";
+		const std::string engineImportDestination = "Data/Content/Assets";
 #endif
 
 		friend class Engine;

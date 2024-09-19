@@ -1,7 +1,10 @@
 #include "ParticleEmitter.h"
+#include "Assets/Mesh.h"
 #include "glm/gtc/type_ptr.hpp"
 #include "glew/glew.h"
+#include "ParticleSystem.h"
 #include "ParticleEmitterShapeManager.h"
+#include "Systems/AssetManager/AssetManager.h"
 #include "Systems/MeshLoadingSystem.h"
 #include "Systems/ShaderSystem/ShaderManager.h"
 #include "Systems/ShaderSystem/ShaderProgram.h"
@@ -20,10 +23,9 @@ namespace LKT
 
 	ParticleEmitter::~ParticleEmitter()
 	{
-		uint32_t buffers[] = {ebo, vbo, perIndexVbo, ssbo, initialSsbo};
+		uint32_t buffers[] = {perIndexVbo, ssbo, initialSsbo};
 
-		glDeleteBuffers(5, buffers);
-		glDeleteVertexArrays(1, &vao);
+		glDeleteBuffers(3, buffers);
 
 		free(particleDataCPU.buffer);
 	}
@@ -37,7 +39,6 @@ namespace LKT
 		outStream.write(reinterpret_cast<const char *>(&commonParticleData.lifetime), sizeof(float));
 		outStream.write(reinterpret_cast<const char *>(&commonParticleData.useGravity), sizeof(bool));
 		outStream.write(reinterpret_cast<const char *>(&commonParticleData.isLocal), sizeof(bool));
-		outStream.write(reinterpret_cast<const char *>(&commonParticleData.simType), sizeof(EParticleSimType));
 
 		return true;
 	}
@@ -51,19 +52,41 @@ namespace LKT
 		inStream.read(reinterpret_cast<char *>(&commonParticleData.lifetime), sizeof(float));
 		inStream.read(reinterpret_cast<char *>(&commonParticleData.useGravity), sizeof(bool));
 		inStream.read(reinterpret_cast<char *>(&commonParticleData.isLocal), sizeof(bool));
-		inStream.read(reinterpret_cast<char *>(&commonParticleData.simType), sizeof(EParticleSimType));
 
 		return true;
 	}
 
-	ParticleEmitter::ParticleEmitter(EParticleSimType type)
+	void ParticleEmitter::SerializeInitialData(std::ofstream &stream)
 	{
-		commonParticleData.simType = type;
+		const uint32_t defaultRate = 10;
+		const uint32_t defaultInitialAmount = 1500;
+		const float defaultLifetime = 5.0f;
+		const bool defaultIsLocal = false;
+
+		stream.write(reinterpret_cast<const char *>(&Color::white), sizeof(Color));
+		stream.write(reinterpret_cast<const char *>(&defaultRate), sizeof(uint32_t));
+		stream.write(reinterpret_cast<const char *>(&defaultInitialAmount), sizeof(uint32_t));
+		stream.write(reinterpret_cast<const char *>(&defaultLifetime), sizeof(float));
+		stream.write(reinterpret_cast<const char *>(&defaultLifetime), sizeof(float));
+		stream.write(reinterpret_cast<const char *>(&defaultIsLocal), sizeof(bool));
+		stream.write(reinterpret_cast<const char *>(&defaultIsLocal), sizeof(bool));
+	}
+
+	ParticleEmitter::ParticleEmitter(ParticleSystem *inParent)
+		: parent(inParent)
+	{
+		auto func = [this](const LazyAssetPtr<Asset> &asset)
+		{
+			particleMesh = std::move(asset.StrongRef());
+		};
+
+		AssetPath path{"Data/Content/Assets/Plane.asset"};
+		AssetManager::GetAsset(path, func);
 
 		// Shape type is hardcoded for now since 1 I don't have a system to serialize the objects yet and 2 I don't have a world to manage objects so I can't exactly set them up from UI
 		ParticleEmitterShapeManager::Get().GetEmitterTypeData("Sphere", particleShapeData);
 
-		switch (commonParticleData.simType)
+		switch (parent->GetSimType())
 		{
 		case CPU:
 			CPUInitialize();
@@ -74,15 +97,9 @@ namespace LKT
 		}
 	}
 
-	void ParticleEmitter::SetSimType(EParticleSimType type)
-	{
-		commonParticleData.simType = type;
-	}
-
 	void ParticleEmitter::GPUInitialize()
 	{
 		CreateComputerBuffers();
-		SetupGPUVertexBuffers();
 	}
 
 	void ParticleEmitter::CPUInitialize()
@@ -204,73 +221,17 @@ namespace LKT
 	{
 		glGenBuffers(1, &perIndexVbo);
 		glBindBuffer(GL_ARRAY_BUFFER, perIndexVbo);
-
 		const int32_t size = commonParticleData.maxAmount * GetCPUParticleDataSize();
-
 		glBufferData(GL_ARRAY_BUFFER, size, particleDataCPU.buffer, GL_DYNAMIC_DRAW);
+		glEnableVertexAttribArray(1);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void *)sizeof(glm::vec4));
+		glVertexAttribDivisor(1, 1);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-		// MeshLoadingSystem::Get().ImportMesh("Data/quad.obj");
-
-		// MeshLoadingSystem::Get().GetMeshData("Data/quad.obj", [this](const MeshData &tempData)
-		// 									 {
-		// 		elementsCount = tempData.indicesCount;
-
-		// 		glGenVertexArrays(1, &vao);
-		// 		glBindVertexArray(vao);
-
-		// 		glGenBuffers(1, &ebo);
-		// 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-		// 		const int32_t elementBufferSize = tempData.indicesCount * sizeof(uint32_t);
-		// 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, elementBufferSize, tempData.indices.data(), GL_STATIC_DRAW);
-
-		// 		glGenBuffers(1, &vbo);
-		// 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		// 		const int32_t vertexBufferSize = tempData.vertexCount * sizeof(VertexData);
-		// 		glBufferData(GL_ARRAY_BUFFER, vertexBufferSize, tempData.vertexData.buffer, GL_STATIC_DRAW);
-
-		// 		glEnableVertexAttribArray(0);
-		// 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-
-		// 		glEnableVertexAttribArray(1);
-		// 		glBindBuffer(GL_ARRAY_BUFFER, perIndexVbo);
-		// 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, (void*)sizeof(glm::vec4));
-		// 		glVertexAttribDivisor(1, 1);
-		// 		glBindBuffer(GL_ARRAY_BUFFER, 0); });
-
-		// glBindVertexArray(0);
-	}
-
-	void ParticleEmitter::SetupGPUVertexBuffers()
-	{
-		// MeshLoadingSystem::Get().ImportMesh("Data/quad.obj");
-
-		// MeshLoadingSystem::Get().GetMeshData("Data/quad.obj", [this](const MeshData &tempData)
-		// 									 {
-		// 		elementsCount = tempData.indicesCount;
-
-		// 		glGenVertexArrays(1, &vao);
-		// 		glBindVertexArray(vao);
-
-		// 		glGenBuffers(1, &ebo);
-		// 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-		// 		const int32_t elementBufferSize = tempData.indicesCount * sizeof(uint32_t);
-		// 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, elementBufferSize, tempData.indices.data(), GL_STATIC_DRAW);
-
-		// 		glGenBuffers(1, &vbo);
-		// 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		// 		const int32_t vertexBufferSize = tempData.vertexCount * sizeof(VertexData);
-		// 		glBufferData(GL_ARRAY_BUFFER, vertexBufferSize, tempData.vertexData.buffer, GL_STATIC_DRAW);
-
-		// 		glEnableVertexAttribArray(0);
-		// 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0); });
-
-		glBindVertexArray(0);
 	}
 
 	void ParticleEmitter::Simulate(float deltaTime)
 	{
-		switch (commonParticleData.simType)
+		switch (parent->GetSimType())
 		{
 		case CPU:
 			SimulateCPU(deltaTime);
@@ -321,25 +282,23 @@ namespace LKT
 
 	void ParticleEmitter::Render()
 	{
-		ShaderManager::Get().SetMat4f("model", model);
-		glBindVertexArray(vao);
+		//ShaderManager::Get().SetMat4f("model", model);
 
-		switch (commonParticleData.simType)
+		if (const Mesh *mesh = particleMesh.Get<Mesh>())
 		{
-		case CPU:
-			RenderCPU();
-			break;
-		default:
-			RenderGPU();
-			break;
+			const RenderComponentObject &rco = mesh->GetRenderComponentObject();
+			glBindVertexArray(rco.vao);
+
+			switch (parent->GetSimType())
+			{
+			case CPU:
+				RenderCPU();
+				break;
+			}
+
+			glDrawElementsInstanced(GL_TRIANGLES, rco.elementCount, GL_UNSIGNED_INT, 0, particleDataCPU.instancesCount);
 		}
-
 		glBindVertexArray(0);
-	}
-
-	void ParticleEmitter::RenderGPU()
-	{
-		glDrawElementsInstanced(GL_TRIANGLES, elementsCount, GL_UNSIGNED_INT, 0, commonParticleData.maxAmount);
 	}
 
 	void ParticleEmitter::RenderCPU()
@@ -347,7 +306,5 @@ namespace LKT
 		glBindBuffer(GL_ARRAY_BUFFER, perIndexVbo);
 		glBufferSubData(GL_ARRAY_BUFFER, sizeof(glm::vec4), sizeof(glm::vec3) * particleDataCPU.instancesCount, particleDataCPU.position);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-		glDrawElementsInstanced(GL_TRIANGLES, elementsCount, GL_UNSIGNED_INT, 0, particleDataCPU.instancesCount);
 	}
 }

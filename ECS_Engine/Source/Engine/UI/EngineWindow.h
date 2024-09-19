@@ -12,7 +12,6 @@ namespace LKT
 {
 	constexpr uint8_t WINDOW_FOCUS = 0x001;
 	constexpr uint8_t WINDOW_SUPPORT_RENDER_BUFFER = 0x002;
-	constexpr uint8_t WINDOW_SUPPORT_CAMERA = 0x004;
 
 	class EngineWindow : public Object
 	{
@@ -32,6 +31,7 @@ namespace LKT
 		virtual void RenderContent() = 0;
 
 		bool isShowing = true;
+		bool isFocused = false;
 		std::string name;
 
 		uint32_t windowFlags = 0;

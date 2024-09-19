@@ -2,7 +2,7 @@
 #include "glew/glew.h"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
-#include "SDL/SDL.h"
+#include "glm/gtx/vector_angle.hpp"
 #include "Systems/ShaderSystem/ShaderManager.h"
 #include "Systems/ShaderSystem/ShaderProgram.h"
 
@@ -10,39 +10,23 @@
 
 namespace LKT
 {
-    Camera::~Camera()
-    {
-        glDeleteBuffers(1, &ubo);
-    }
-
     Camera::Camera(int32_t inWidth, int32_t inHeight, const glm::vec3 &initialPosition)
         : width(inWidth), height(inHeight), position(initialPosition)
     {
-        glGenBuffers(1, &ubo);
-        glBindBuffer(GL_UNIFORM_BUFFER, ubo);
-        glBufferData(GL_UNIFORM_BUFFER, sizeof(glm::mat4) * 2, nullptr, GL_STATIC_DRAW);
-        glBindBuffer(GL_UNIFORM_BUFFER, 0);
-
-        // This is set in the shader program uniform buffer settings
-        glBindBufferRange(GL_UNIFORM_BUFFER, 0, ubo, 0, 2 * sizeof(glm::mat4));
-
-        HandleTypeChanged();
-        UpdateVectors();
-        SetRotation(glm::vec3(pitch, yaw, 0.0f));
+        ShaderManager::GetUBO(MATRICES_UBO_INDEX, ubo);
+        // SetRotation(glm::vec3(pitch, yaw, 0.0f));
+        lookDirection = position + forward;
     }
 
     void Camera::ChangeType(ECameraType inType)
     {
         cameraType = inType;
-        HandleTypeChanged();
     }
 
     void Camera::ResizeWindow(int32_t inWidth, int32_t inHeight)
     {
         width = inWidth;
         height = inHeight;
-
-        HandleTypeChanged();
     }
 
     void Camera::SetFieldOfView(float inFieldOfView)
@@ -50,8 +34,6 @@ namespace LKT
         if (cameraType == ECameraType::Perspective)
         {
             fieldOfView = inFieldOfView;
-            SetPerspectiveCamera();
-            UpdateProjection();
         }
     }
 
@@ -60,8 +42,6 @@ namespace LKT
         if (cameraType == ECameraType::Perspective)
         {
             nearView = inNearView;
-            SetPerspectiveCamera();
-            UpdateProjection();
         }
     }
 
@@ -70,8 +50,6 @@ namespace LKT
         if (cameraType == ECameraType::Perspective)
         {
             farView = inFarView;
-            SetPerspectiveCamera();
-            UpdateProjection();
         }
     }
 
@@ -80,8 +58,6 @@ namespace LKT
         if (cameraType == ECameraType::Orthographic)
         {
             ortographicSize = inOrthographicSize;
-            SetOrthographicCamera();
-            UpdateProjection();
         }
     }
 
@@ -90,58 +66,70 @@ namespace LKT
         if (cameraType == ECameraType::Orthographic)
         {
             cameraZ = inCameraZ;
-            SetOrthographicCamera();
-            UpdateProjection();
         }
     }
 
     void Camera::SetPosition(const glm::vec3 &newPosition)
     {
         position = newPosition;
-        UpdateVectors();
     }
 
     void Camera::SetRotation(const glm::vec3 &eulerAngles)
     {
-        glm::vec3 correctedEulers = eulerAngles;
+        rotation = glm::qua(glm::radians(eulerAngles));
+        rotation = glm::normalize(rotation);
 
-        if (correctedEulers.y > 360.0f || correctedEulers.y < -360.0f)
-        {
-            correctedEulers.y = 0.0f;
-        }
+        UpdateDirections();
+    }
 
-        correctedEulers.x = glm::clamp(correctedEulers.x, -89.9f, 89.9f);
+    void Camera::UpdateDirections()
+    {
+        forward = glm::normalize(rotation * glm::vec3(0.f, 0.f, -1.f));
+        up = glm::normalize(rotation * glm::vec3(0.f, 1.f, 0.f));
+        right = glm::normalize(rotation * glm::vec3(1.f, 0.f, 0.f));
+    }
 
-        yaw = correctedEulers.y;
-        pitch = correctedEulers.x;
-
-        glm::vec3 front = glm::vec3(0.0f);
-
-        front.x = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-        front.y = sin(glm::radians(pitch));
-        front.z = -cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-
-        forward = glm::normalize(front);
-
-        right = glm::normalize(glm::cross(forward, worldUp));
-        up = glm::normalize(glm::cross(right, forward));
-
-        UpdateVectors();
+    void Camera::Zoom(float amount)
+    {
+        position += forward * amount;
     }
 
     void Camera::Move(const glm::vec3 &direction)
     {
         position += direction;
-        UpdateVectors();
     }
 
     void Camera::Rotate(const glm::vec3 &axis)
     {
-        const glm::vec3 eulers(axis.x + pitch, yaw + axis.y, axis.z);
-        SetRotation(eulers);
+        // const glm::vec3 eulers(axis.x + pitch, yaw + axis.y, axis.z);
+        // SetRotation(eulers);
     }
 
-    void Camera::HandleTypeChanged()
+    void Camera::RotateAround(const glm::vec3 &pos, glm::vec3 axis, float angle)
+    {
+        glm::vec3 offset = position - pos;
+
+        // Making sure the user doesn't send weird stuff here
+        axis = glm::normalize(axis);
+        axis.z = 0.0f;
+
+        glm::vec3 rotatedOffset = glm::rotate(offset, glm::radians(angle), axis);
+
+        position = pos + rotatedOffset;
+
+        const glm::vec3 tempForward = glm::normalize(pos - position);
+        rotation = glm::quatLookAt(tempForward, up);
+
+        UpdateDirections();
+    }
+
+    void Camera::Present()
+    {
+        UpdateProjectionType();
+        UpdateVectors();
+    }
+
+    void Camera::UpdateProjectionType()
     {
         switch (cameraType)
         {

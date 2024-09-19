@@ -4,6 +4,7 @@
 #include "AssetManager.h"
 #include "AssetPath.h"
 
+#include <cassert>
 #include <iostream>
 #include <string>
 
@@ -47,7 +48,9 @@ namespace LKT
 			}
 		}
 
-		// This can only be made with an asset path, will probably check in the future to add support for default constructo too
+		LazyAssetPtr()
+			: ptr(nullptr), refCounter(new RefCounter{0}) {}
+
 		LazyAssetPtr(const AssetPath &inPath)
 			: ptr(nullptr), refCounter(new RefCounter{0}), path(inPath) {}
 
@@ -64,10 +67,38 @@ namespace LKT
 			other.refCounter = nullptr;
 		}
 
-		// No move operator, not reason to have this, use the move construct instead
-		LazyAssetPtr &operator=(LazyAssetPtr &&other) = delete;
-		// Copy operator will create a weak reference just like the copy construct!
-		LazyAssetPtr &operator=(const LazyAssetPtr &other) = default;
+		// Since we now have a default construct we need to have a move construct so we can move the strong ref
+		LazyAssetPtr &operator=(LazyAssetPtr &&other)
+		{
+			if (this != &other)
+			{
+				assert(("A strong reference cannot be assigned any new value!", !isStrong));
+
+				ptr = other.ptr;
+				other.ptr = nullptr;
+
+				refCounter = other.refCounter;
+				other.refCounter = nullptr;
+
+				isStrong = other.isStrong;
+				other.isStrong = false;
+			}
+
+			return *this;
+		}
+
+		LazyAssetPtr &operator=(const LazyAssetPtr &other)
+		{
+			if (this != &other)
+			{
+				assert(("A strong reference cannot be assigned any new value!", !isStrong));
+				assert(("Cannot copy a strong reference, please use move instead!", !other.isStrong));
+				ptr = other.ptr;
+				refCounter = other.refCounter;
+			}
+
+			return *this;
+		}
 
 		// Creates a strong reference and loads the asset if it wasn't already
 		LazyAssetPtr<T> &StrongRef() const

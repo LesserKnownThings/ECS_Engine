@@ -35,7 +35,7 @@ namespace LKT
 
                 if (stream.is_open())
                 {
-                    CreateAssetMetadata(assetPath, importedAssetPath, stream, metadata);
+                    CreateAssetMetadata(assetPath, stream, metadata);
                     mesh.Serialize(stream);
                 }
 

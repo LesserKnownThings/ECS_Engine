@@ -2,7 +2,7 @@
 #include "Assets/Mesh.h"
 #include "glew/glew.h"
 #include "Systems/RenderComponent.h"
-#include "Systems/RenderBufferSystem.h"
+#include "Systems/Rendering/RenderBufferObject.h"
 #include "Systems/ShaderSystem/ShaderManager.h"
 
 namespace LKT
@@ -16,8 +16,8 @@ namespace LKT
 
     void MeshAssetViewer::RenderContent()
     {
-        uint32_t bufferTex = 0;
-        if (RenderBufferSystem::Get().GetBufferTexture(this, bufferTex))
+        const uint32_t bufferTex = renderBuffer->GetTextureId();
+        if (bufferTex != 0)
         {
             ImVec2 available = ImGui::GetContentRegionAvail();
 
@@ -41,7 +41,7 @@ namespace LKT
         }
     }
 
-    void MeshAssetViewer::RenderAsset()
+    void MeshAssetViewer::RenderAssetContent()
     {
         if (const Mesh *mesh = asset.Get<Mesh>())
         {
