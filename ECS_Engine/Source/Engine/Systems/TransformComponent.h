@@ -14,18 +14,20 @@ namespace LKT
 		int32_t instancesCount = 0;
 		int32_t allocatedInstances = 0;
 
-		void* buffer = nullptr;
+		void *buffer = nullptr;
 
-		glm::vec3* position = nullptr;
-		glm::vec3* eulerAngles = nullptr;
-		glm::vec3* scale = nullptr;
+		glm::vec3 *position = nullptr;
+		glm::vec3 *eulerAngles = nullptr;
+		glm::vec3 *scale = nullptr;
 
-		Entity* entity = nullptr;
+		Entity *entity = nullptr;
 	};
-
 
 	struct TransformComponentResource : public ComponentResource
 	{
-		TransformComponentResource(int32_t instances, glm::vec3* position = nullptr, glm::vec3* eulerAngles = nullptr, glm::vec3* scale = nullptr);
+		TransformComponentResource(int32_t instances,
+								   glm::vec3 *position = nullptr,
+								   glm::vec3 *eulerAngles = nullptr,
+								   glm::vec3 *scale = nullptr);
 	};
 }

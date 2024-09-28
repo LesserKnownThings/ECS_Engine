@@ -10,6 +10,7 @@ namespace LKT
 {
 	constexpr int32_t RENDER_HANDLE = 0x01;
 	constexpr uint32_t PROCESS_HANDLE = 0x02;
+	constexpr uint32_t PHYSICS_HANDLE = 0x04;
 
 	/// <summary>
 	/// A task is a container for a function. Its purpose is to handle different systems calling different functions with different priorities.

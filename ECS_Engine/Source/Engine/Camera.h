@@ -35,14 +35,20 @@ namespace LKT
 
 		void Zoom(float amount);
 		void Move(const glm::vec3 &direction);
-		void Rotate(const glm::vec3 &axis);
+		void Rotate(glm::vec3 axis);
 		void RotateAround(const glm::vec3 &pos, glm::vec3 axis, float angle);
 
 		void Present();
 
+		const glm::vec3 &GetPosition() const { return position; }
 		const glm::vec3 &GetRightVector() const { return right; }
+		const glm::vec3 &GetUpVector() const { return up; }
+		const glm::vec3 &GetForwardVector() const { return forward; }
 		const glm::mat4 &GetView() const { return view; }
 		const glm::mat4 &GetProjection() const { return projection; }
+		const float GetNearView() const { return nearView; }
+		const float GetFarView() const { return farView; }
+		const float GetFOV() const { return fieldOfView; }
 
 	private:
 		void SetPerspectiveCamera();
@@ -58,7 +64,7 @@ namespace LKT
 
 		//***Perspective settings
 		float fieldOfView = 45.0f;
-		float nearView = 1.0f;
+		float nearView = 0.1f;
 		float farView = 6000.0f;
 
 		glm::vec3 forward = glm::vec3(0.0f, 0.0f, -1.0f);

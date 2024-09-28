@@ -82,7 +82,7 @@ namespace LKT
 		return false;
 	}
 
-	void ShaderManager::SetInt(const std::string &name, int32_t value)
+	void ShaderManager::SetInt(const std::string &name, int32_t value) const
 	{
 		if (ShaderProgram *sp = GetActiveShader())
 		{
@@ -90,7 +90,7 @@ namespace LKT
 		}
 	}
 
-	void ShaderManager::SetFloat(const std::string &name, float value)
+	void ShaderManager::SetFloat(const std::string &name, float value) const
 	{
 		if (ShaderProgram *sp = GetActiveShader())
 		{
@@ -98,7 +98,23 @@ namespace LKT
 		}
 	}
 
-	void ShaderManager::SetMat4f(const std::string &name, const glm::mat4 &value)
+    void ShaderManager::SetVec2(const std::string &name, const glm::vec2 &value) const
+    {
+		if (ShaderProgram *sp = GetActiveShader())
+		{
+			sp->SetVec2(name, value);
+		}
+    }
+
+    void ShaderManager::SetVec3(const std::string &name, const glm::vec3 &value) const
+	{
+		if (ShaderProgram *sp = GetActiveShader())
+		{
+			sp->SetVec3(name, value);
+		}
+	}
+
+	void ShaderManager::SetMat4f(const std::string &name, const glm::mat4 &value) const
 	{
 		if (ShaderProgram *sp = GetActiveShader())
 		{
@@ -181,7 +197,7 @@ namespace LKT
 				}
 			}
 
-			if (shaders.size() > 1)
+			if (shaders.size() > 0)
 			{
 				ShaderProgram *sp = new ShaderProgram();
 				sp->CompileShader(vertexShaderPath, fragmentShaderPath, shaderName);

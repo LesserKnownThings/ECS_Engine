@@ -54,5 +54,12 @@ namespace LKT
 
 		uint32_t pressedMouseButtons = 0;
 		bool isBlocked = false;
+
+		/**
+		 * Used to detect when to stop scrolling
+		 */
+		bool isScrolling = false;
+		const float scrollDelta = 0.05f;
+		float currentScrollDelta = 0.f;
 	};
 }

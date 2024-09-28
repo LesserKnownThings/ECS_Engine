@@ -40,9 +40,11 @@ namespace LKT
 		static void ActivateLastShader();
 		static bool GetUBO(uint32_t uboIndex, uint32_t &outUBO);
 
-		void SetInt(const std::string &name, int32_t value);
-		void SetFloat(const std::string &name, float value);
-		void SetMat4f(const std::string &name, const glm::mat4 &value);
+		void SetInt(const std::string &name, int32_t value) const;
+		void SetFloat(const std::string &name, float value) const;
+		void SetVec2(const std::string &name, const glm::vec2 &value) const;
+		void SetVec3(const std::string &name, const glm::vec3 &value) const;
+		void SetMat4f(const std::string &name, const glm::mat4 &value) const;
 
 		uint32_t GetActiveShaderID() const;
 		ShaderProgram *GetActiveShader() const;
