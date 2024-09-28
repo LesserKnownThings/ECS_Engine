@@ -149,10 +149,6 @@ namespace LKT
         {
             renderBuffer->Use();
             camera->Present();
-
-            assetModel = glm::rotate(assetModel, glm::radians(1.f), glm::vec3(0.f, 1.f, 0.f));
-            ShaderManager::Get().SetMat4f("model", assetModel);
-
             RenderAssetContent();
             renderBuffer->Dispose();
         }

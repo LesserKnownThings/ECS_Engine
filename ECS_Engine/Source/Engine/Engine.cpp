@@ -1,15 +1,27 @@
 #include "Engine.h"
 #include "BuildMacros.h"
-#include "SDL/SDL.h"
-#include "Systems/AssetManager/AssetManager.h"
-#include "Systems/InputSystem/InputManagerSystem.h"
-#include "Systems/OpenGLSystem.h"
 #include "Systems/ShaderSystem/ShaderManager.h"
 #include "Systems/TaskManagerSystem.h"
-#include "Systems/Voxel/VoxelWorld.h"
 #include "UI/UIManager.h"
 
+#include <unistd.h>
+
 #include <iostream>
+
+#include "Assets/Texture.h"
+#include "EntityManager.h"
+#include "SDL/SDL.h"
+#include "SDL/SDL_mouse.h"
+#include "Systems/AssetManager/AssetManager.h"
+#include "Systems/AssetManager/LazyAssetPtr.h"
+#include "Systems/InputSystem/InputManagerSystem.h"
+#include "Systems/MeshLoadingSystem.h"
+#include "Systems/OpenGLSystem.h"
+#include "Random.h"
+#include "Systems/RenderComponent.h"
+#include "Systems/ResourceManagerSystem.h"
+#include "Systems/TransformComponent.h"
+#include "Systems/TransformSystem.h"
 
 namespace LKT
 {
@@ -134,7 +146,6 @@ namespace LKT
     void Engine::InitializeMisc()
     {
         InputManagerSystem::Get().onCloseAppDelegate.Bind(this, &Engine::HandleCloseEngine);
-        VoxelWorld *world = new VoxelWorld();
     }
 
     void Engine::UninitializeEngine()

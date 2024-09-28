@@ -29,11 +29,6 @@ namespace LKT
         glUniform1f(glGetUniformLocation(id, name.c_str()), value);
     }
 
-    void ShaderProgram::SetVec2(const std::string &name, const glm::vec2 &value) const
-    {
-        glUniform2f(glGetUniformLocation(id, name.c_str()), value.x, value.y);
-    }
-
     void ShaderProgram::SetVec3(const std::string &name, const glm::vec3 &value) const
     {
         glUniform3f(glGetUniformLocation(id, name.c_str()), value.x, value.y, value.z);
@@ -65,56 +60,53 @@ namespace LKT
     void ShaderProgram::CompileShader(const std::string &vertexShaderPath, const std::string &fragmentShaderPath, const std::string &inName)
     {
         shaderName = inName;
-        uint32_t vertex = 0, fragment = 0;
 
-        if (!vertexShaderPath.empty())
+        std::string vertexCode;
+        std::string fragmentCode;
+
+        std::ifstream vShaderFile;
+        std::ifstream fShaderFile;
+
+        vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+        fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+        try
         {
-            std::string vertexCode;
-            std::ifstream vShaderFile;
-            std::stringstream vShaderStream;
-
-            vShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
             vShaderFile.open(vertexShaderPath);
-            vShaderStream << vShaderFile.rdbuf();
-            vShaderFile.close();
-
-            vertexCode = vShaderStream.str();
-            const char *vShaderCode = vertexCode.c_str();
-
-            vertex = glCreateShader(GL_VERTEX_SHADER);
-            glShaderSource(vertex, 1, &vShaderCode, NULL);
-            glCompileShader(vertex);
-            CheckCompilerError(vertex, "VERTEX", vertexShaderPath);
-        }
-
-        if (!fragmentShaderPath.empty())
-        {
-            std::string fragmentCode;
-            std::ifstream fShaderFile;
-            std::stringstream fShaderStream;
-
-            fShaderFile.exceptions(std::ifstream::failbit | std::ifstream::badbit);
             fShaderFile.open(fragmentShaderPath);
+            std::stringstream vShaderStream, fShaderStream;
+
+            vShaderStream << vShaderFile.rdbuf();
             fShaderStream << fShaderFile.rdbuf();
+
+            vShaderFile.close();
             fShaderFile.close();
 
+            vertexCode = vShaderStream.str();
             fragmentCode = fShaderStream.str();
-
-            const char *fShaderCode = fragmentCode.c_str();
-
-            fragment = glCreateShader(GL_FRAGMENT_SHADER);
-            glShaderSource(fragment, 1, &fShaderCode, NULL);
-            glCompileShader(fragment);
-            CheckCompilerError(fragment, "FRAGMENT", fragmentShaderPath);
+        }
+        catch (std::ifstream::failure &e)
+        {
+            std::cout << "ERROR::SHADER::FILE_NOT_SUCCESSFULLY_READ: " << e.what() << std::endl;
         }
 
+        const char *vShaderCode = vertexCode.c_str();
+        const char *fShaderCode = fragmentCode.c_str();
+
+        unsigned int vertex, fragment;
+
+        vertex = glCreateShader(GL_VERTEX_SHADER);
+        glShaderSource(vertex, 1, &vShaderCode, NULL);
+        glCompileShader(vertex);
+        CheckCompilerError(vertex, "VERTEX", vertexShaderPath);
+
+        fragment = glCreateShader(GL_FRAGMENT_SHADER);
+        glShaderSource(fragment, 1, &fShaderCode, NULL);
+        glCompileShader(fragment);
+        CheckCompilerError(fragment, "FRAGMENT", fragmentShaderPath);
+
         id = glCreateProgram();
-
-        if (vertex != 0)
-            glAttachShader(id, vertex);
-        if (fragment != 0)
-            glAttachShader(id, fragment);
-
+        glAttachShader(id, vertex);
+        glAttachShader(id, fragment);
         glLinkProgram(id);
         CheckCompilerError(id, "PROGRAM", vertexShaderPath);
 

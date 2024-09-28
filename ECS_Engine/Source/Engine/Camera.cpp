@@ -85,9 +85,8 @@ namespace LKT
     void Camera::UpdateDirections()
     {
         forward = glm::normalize(rotation * glm::vec3(0.f, 0.f, -1.f));
-        const glm::vec3 worldUp = glm::vec3(0.f, 1.f, 0.f);
-        right = glm::normalize(glm::cross(forward, worldUp));
-        up = glm::cross(right, forward);
+        up = glm::normalize(rotation * glm::vec3(0.f, 1.f, 0.f));
+        right = glm::normalize(rotation * glm::vec3(1.f, 0.f, 0.f));
     }
 
     void Camera::Zoom(float amount)
@@ -100,21 +99,10 @@ namespace LKT
         position += direction;
     }
 
-    void Camera::Rotate(glm::vec3 axis)
+    void Camera::Rotate(const glm::vec3 &axis)
     {
-        if (axis.x > 0.f || axis.x < 0.f || axis.y > 0.f || axis.y < 0.f)
-        {
-            const float deltaX = glm::radians(axis.y);
-            const float deltaY = glm::radians(axis.x);
-
-            glm::vec3 rotateForward = glm::rotate(forward, deltaY, right);
-            rotateForward = glm::rotate(rotateForward, deltaX, up);
-            rotateForward = glm::normalize(rotateForward);
-
-            rotation = glm::quatLookAt(rotateForward, up);
-
-            UpdateDirections();
-        }
+        // const glm::vec3 eulers(axis.x + pitch, yaw + axis.y, axis.z);
+        // SetRotation(eulers);
     }
 
     void Camera::RotateAround(const glm::vec3 &pos, glm::vec3 axis, float angle)

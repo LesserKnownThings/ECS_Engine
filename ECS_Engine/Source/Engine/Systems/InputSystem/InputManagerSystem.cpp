@@ -28,17 +28,6 @@ namespace LKT
 	{
 		RunEvents();
 
-		if (isScrolling)
-		{
-			currentScrollDelta += deltaTime;
-			if (currentScrollDelta >= scrollDelta)
-			{
-				isScrolling = false;
-				currentScrollDelta = 0.f;
-				onMouseScroll.Invoke(0.f);
-			}
-		}
-
 		SDL_GetRelativeMouseState(&mouseDelta.x, &mouseDelta.y);
 	}
 
@@ -89,8 +78,6 @@ namespace LKT
 			else if (e.type == SDL_EVENT_MOUSE_WHEEL)
 			{
 				onMouseScroll.Invoke(e.button.x);
-				isScrolling = true;
-				currentScrollDelta = 0.f;
 			}
 
 			ImGui_ImplSDL3_ProcessEvent(&e);
@@ -105,5 +92,6 @@ namespace LKT
 	float InputManagerSystem::GetVerticalAxis()
 	{
 		return mappedKeys[SDLK_W] + -mappedKeys[SDLK_S];
+		;
 	}
 }
