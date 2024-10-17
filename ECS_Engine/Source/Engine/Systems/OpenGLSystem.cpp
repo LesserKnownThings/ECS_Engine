@@ -1,10 +1,12 @@
 #include "OpenGLSystem.h"
+#include "Camera.h"
+#include "EntityManager.h"
+#include "glew/glew.h"
+#include "GraphicHelpers.h"
 #include "imgui/imgui.h"
 #include "imgui/ImGuizmo.h"
 #include "imgui/backends/imgui_impl_sdl3.h"
 #include "imgui/backends/imgui_impl_opengl3.h"
-#include "glew/glew.h"
-#include "GraphicHelpers.h"
 #include "InputSystem/InputManagerSystem.h"
 #include "MeshLoadingSystem.h"
 #include "ParticleSystem/ParticleSystem.h"
@@ -169,29 +171,38 @@ namespace LKT
 		SDL_GL_SwapWindow(window);
 	}
 
-	uint32_t OpenGLSystem::CreateComponent(const Entity &e, void *componentData)
+	void OpenGLSystem::HandleEntityRemoved(const Entity &e)
 	{
-		int32_t size = instances.size();
-
-		if (renderComponent.allocatedInstances <= size)
+		const auto c = instances.find(e);
+		if (c != instances.end())
 		{
-			AllocateMemory(renderComponent.allocatedInstances * 2);
+			DestroyComponent(c->second);
 		}
-
-		instances.emplace(e, size);
-		renderComponent.instancesCount++;
-
-		renderComponent.entity[size] = e;
-		renderComponent.vao[size] = 0;
-		renderComponent.vbo[size] = 0;
-		renderComponent.ebo[size] = 0;
-		renderComponent.textureID[size] = 0;
-		renderComponent.elementCount[size] = 0;
-
-		return size;
 	}
 
-	void OpenGLSystem::CreateComponents(int32_t entityCount, Entity *entities, void *componentData)
+	void OpenGLSystem::DestroyComponent(uint32_t c)
+	{
+		const uint32_t last = renderComponent.instancesCount - 1;
+		const Entity currentEntity = renderComponent.entity[c];
+		const Entity lastEntity = renderComponent.entity[last];
+
+		renderComponent.entity[c] = renderComponent.entity[last];
+		renderComponent.vao[c] = renderComponent.vao[last];
+		renderComponent.vbo[c] = renderComponent.vbo[last];
+		renderComponent.ebo[c] = renderComponent.ebo[last];
+		renderComponent.elementCount[c] = renderComponent.elementCount[last];
+		renderComponent.textureID[c] = renderComponent.textureID[last];
+
+		instances[lastEntity] = c;
+		instances.erase(currentEntity);
+		renderComponent.instancesCount--;
+	}
+
+	void OpenGLSystem::CreateComponents(int32_t entityCount,
+										Entity *entities,
+										const std::type_index &type,
+										void *commonData,
+										void *componentData)
 	{
 		const uint32_t startingIndex = instances.size();
 
@@ -307,6 +318,18 @@ namespace LKT
 		glDeleteBuffers(1, &rco.ebo);
 
 		// TODO check if texture needs to be deleted too
+	}
+
+	Camera *OpenGLSystem::RequestCamera(const glm::vec3 &initialPos)
+	{
+		const OpenGLSystem &instance = OpenGLSystem::Get();
+		return new Camera(instance.width, instance.height, initialPos);
+	}
+
+	float OpenGLSystem::GetAspectRation()
+	{
+		const OpenGLSystem &instance = OpenGLSystem::Get();
+		return static_cast<float>(instance.width) / static_cast<float>(instance.height);
 	}
 
 	void OpenGLSystem::AllocateMemory(int32_t size)

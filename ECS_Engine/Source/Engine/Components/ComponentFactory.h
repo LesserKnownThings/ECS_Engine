@@ -9,7 +9,8 @@ namespace LKT
 	struct ComponentResource
 	{
 		uint32_t bufferSize;
-		void* buffer;
+		void *buffer = nullptr;
+		void *commonData = nullptr;
 	};
 
 	class ComponentFactory
@@ -17,7 +18,7 @@ namespace LKT
 		virtual void CreateComponentData() = 0;
 	};
 
-	template<typename... Args>
+	template <typename... Args>
 	class ComponentFactoryType : public ComponentFactory
 	{
 		using FactoryFunc = std::function<void(Args...)>;
@@ -25,7 +26,8 @@ namespace LKT
 	public:
 		ComponentFactoryType(FactoryFunc func, std::tuple<Args...> args)
 			: creationFunc(func), storedArgs(args)
-		{}
+		{
+		}
 
 		void CreateComponentData() override
 		{
@@ -37,7 +39,7 @@ namespace LKT
 		std::tuple<Args...> storedArgs;
 	};
 
-	template<>
+	template <>
 	class ComponentFactoryType<> : public ComponentFactory
 	{
 		using FactoryFunc = std::function<void()>;

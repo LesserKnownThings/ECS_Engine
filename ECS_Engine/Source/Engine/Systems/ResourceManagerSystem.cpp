@@ -2,6 +2,7 @@
 #include "DebugSystem.h"
 
 #include <iostream>
+#include <thread>
 
 namespace LKT
 {
@@ -15,10 +16,41 @@ namespace LKT
 
 	void ResourceManagerSystem::RegisterFunction(std::type_index type, CreationFunction func)
 	{
-		factories[type] = [func](int32_t entityCount, Entity *entities, void *componentData)
+		factories[type] = [func](int32_t entityCount,
+								 Entity *entities,
+								 const std::type_index &type,
+								 void *commonData,
+								 void *componentData)
 		{
-			func(entityCount, entities, componentData);
+			func(entityCount, entities, type, commonData, componentData);
 		};
+	}
+
+	void ResourceManagerSystem::SpawnEntities(EntityResource &resource)
+	{
+		for (int32_t i = 0; i < resource.entitiesCount; ++i)
+		{
+			resource.entities[i] = EntityManager::Get().CreateEntity();
+		}
+
+		CreateComponents(resource);
+	}
+
+	void ResourceManagerSystem::CreateComponents(EntityResource &resource)
+	{
+		for (const auto &comp : resource.components)
+		{
+			auto it = factories.find(comp.first);
+
+			if (it != factories.end())
+			{
+				it->second(resource.entitiesCount,
+						   resource.entities,
+						   comp.first,
+						   resource.components[comp.first].commonData,
+						   resource.components[comp.first].data);
+			}
+		}
 	}
 
 	EntityResource::~EntityResource()

@@ -4,11 +4,18 @@
 #include "Systems/TaskManagerSystem.h"
 #include "UI/UIManager.h"
 
+#include "Systems/World/World.h"
+#if GAME_ONLY
+#include "Systems/World/GameWorld.h"
+#endif
+
 #include <unistd.h>
 
 #include <iostream>
 
 #include "Assets/Texture.h"
+#include "Components/RenderComponent.h"
+#include "Components/TransformComponent.h"
 #include "EntityManager.h"
 #include "SDL/SDL.h"
 #include "SDL/SDL_mouse.h"
@@ -18,9 +25,7 @@
 #include "Systems/MeshLoadingSystem.h"
 #include "Systems/OpenGLSystem.h"
 #include "Random.h"
-#include "Systems/RenderComponent.h"
 #include "Systems/ResourceManagerSystem.h"
-#include "Systems/TransformComponent.h"
 #include "Systems/TransformSystem.h"
 
 namespace LKT
@@ -66,6 +71,14 @@ namespace LKT
 
     void Engine::RunEngine()
     {
+#if GAME_ONLY
+        entryWorld = new GameWorld();
+#elif
+        entryWorld = new World();
+#endif
+
+        entryWorld->Initialize();
+
         uint32_t currentTicks = SDL_GetTicks();
 
         while (isRunning)
@@ -162,6 +175,13 @@ namespace LKT
     {
         TaskManagerSystem::Get().ExecuteTasks(PROCESS_HANDLE, deltaTime);
         OpenGLSystem::Get().Render();
+
+        gcTimer -= deltaTime;
+        if (gcTimer <= 0)
+        {
+            gcTimer = GC_DELAY;
+            TaskManagerSystem::Get().ExecuteTasks(GC_HANDLE);
+        }
     }
 
     void Engine::HandleCloseEngine()

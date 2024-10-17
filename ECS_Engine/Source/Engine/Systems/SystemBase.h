@@ -3,13 +3,17 @@
 #include "Entity.h"
 
 #include <cstdint>
+#include <typeindex>
 
 namespace LKT
 {
 	class SystemBase
 	{
 	public:
-		virtual uint32_t CreateComponent(const Entity& e, void* componentData) = 0;
-		virtual void CreateComponents(int32_t entityCount, Entity* entities, void* componentData) {}
+		virtual void CreateComponents(int32_t entityCount,
+									  Entity *entities,
+									  const std::type_index &type,
+									  void *commonData,
+									  void *componentData) = 0;
 	};
 }

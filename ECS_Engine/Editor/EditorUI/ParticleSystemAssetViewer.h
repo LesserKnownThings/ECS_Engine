@@ -1,6 +1,6 @@
 #pragma once
 
-#include "EditorUI/AssetViewerWindow.h"
+#include "AssetViewerWindow.h"
 
 namespace LKT
 {

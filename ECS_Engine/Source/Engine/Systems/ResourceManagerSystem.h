@@ -1,12 +1,13 @@
 #pragma once
 
-#include "ComponentFactory.h"
+#include "Components/ComponentFactory.h"
 #include "Entity.h"
 #include "EntityManager.h"
 
 #include <cstdint>
 #include <cstdlib>
 #include <functional>
+#include <iostream>
 #include <typeindex>
 #include <unordered_map>
 #include <vector>
@@ -17,13 +18,14 @@ namespace LKT
 {
 	constexpr uint16_t INVALID_COMPONENT = 0;
 
-	using CreationFunction = std::function<void(int32_t, Entity *, void *)>;
+	using CreationFunction = std::function<void(int32_t, Entity *, const std::type_index &, void *, void *)>;
 
 	struct ComponentResourceData
 	{
 		ComponentResourceData() = default;
 		ComponentResourceData(ComponentResourceData &&other);
 		void *data = nullptr;
+		void *commonData = nullptr;
 	};
 
 	struct EntityResource
@@ -36,10 +38,10 @@ namespace LKT
 
 		~EntityResource();
 
-		EntityResource(EntityResource&& other);
-		EntityResource& operator=(EntityResource&& other);
+		EntityResource(EntityResource &&other);
+		EntityResource &operator=(EntityResource &&other);
 
-		EntityResource(const EntityResource& other) = delete;
+		EntityResource(const EntityResource &other) = delete;
 
 		template <typename... Args>
 		void AddComponentResources(Args &&...args);
@@ -63,11 +65,9 @@ namespace LKT
 		void RegisterFunction(std::type_index type, CreationFunction func);
 
 		// Spawns entities based on the EntityResource and stores the data in the same object
-		template <typename... Args>
 		void SpawnEntities(EntityResource &resource);
 
 	private:
-		template <typename T>
 		void CreateComponents(EntityResource &resource);
 
 		std::unordered_map<std::type_index, CreationFunction> factories;
@@ -75,28 +75,6 @@ namespace LKT
 		// Used to index all components in the project
 		static uint16_t componentTypeIndex;
 	};
-
-	template <typename T>
-	void ResourceManagerSystem::CreateComponents(EntityResource &resource)
-	{
-		auto it = factories.find(typeid(T));
-
-		if (it != factories.end())
-		{
-			it->second(resource.entitiesCount, resource.entities, resource.components[typeid(T)].data);
-		}
-	}
-
-	template <typename... Args>
-	void ResourceManagerSystem::SpawnEntities(EntityResource &resource)
-	{
-		for (int32_t i = 0; i < resource.entitiesCount; ++i)
-		{
-			resource.entities[i] = EntityManager::Get().CreateEntity();
-		}
-
-		(CreateComponents<Args>(resource), ...);
-	}
 
 	template <typename... Args>
 	void EntityResource::AddComponentResources(Args &&...args)
@@ -111,6 +89,8 @@ namespace LKT
 		{
 			ComponentResourceData comp;
 			comp.data = compRes->buffer;
+			comp.commonData = compRes->commonData;
+			compRes->commonData = nullptr;
 			compRes->buffer = nullptr;
 			components.emplace(typeid(T), std::move(comp));
 		}
@@ -123,8 +103,12 @@ namespace LKT
 		type##ComponentRegistrar()                                                                                                 \
 		{                                                                                                                          \
 			type &instance = type::Get();                                                                                          \
-			ResourceManagerSystem::Get().RegisterFunction(typeid(compRes), [&instance](int32_t entityCount, Entity *e, void *data) \
-														  { instance.CreateComponents(entityCount, e, data); });                   \
+			ResourceManagerSystem::Get().RegisterFunction(typeid(compRes), [&instance](int32_t entityCount,                        \
+																					   Entity *e,                                  \
+																					   const std::type_index &type,                \
+																					   void *commonData,                           \
+																					   void *data)                                 \
+														  { instance.CreateComponents(entityCount, e, type, commonData, data); }); \
 		}                                                                                                                          \
 	};                                                                                                                             \
 	static type##ComponentRegistrar type##RegistrarInstance;

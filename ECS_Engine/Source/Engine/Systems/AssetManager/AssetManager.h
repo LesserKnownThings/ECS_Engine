@@ -27,6 +27,7 @@ namespace LKT
 		static AssetManager &Get();
 
 		static bool GetAsset(const AssetPath &path, std::function<void(const LazyAssetPtr<Asset> &asset)> assetProcessFunc);
+		static bool GetAsset(const AssetPath &path, LazyAssetPtr<Asset> &outAsset);
 		static Asset *LoadAsset(const AssetPath &path);
 
 #if EDITOR_ONLY

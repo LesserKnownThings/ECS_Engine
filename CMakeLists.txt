@@ -31,27 +31,15 @@ file(GLOB_RECURSE HEADERS "${CMAKE_SOURCE_DIR}/**/Source/Engine/*.h")
 list(APPEND GLOBAL_HEADERS ${HEADERS})
 
 include_directories(${CMAKE_SOURCE_DIR}/Include)
+include_directories(${CMAKE_SOURCE_DIR}/Include/physx)
 include_directories(${CMAKE_SOURCE_DIR}/ECS_Engine/Source/Engine)
 
 file(GLOB DIRECTORY_LIST LIST_DIRECTORIES TRUE ${CMAKE_SOURCE_DIR}/Include/*)
 
-set(INCLUDE_DIRS "")
-
-foreach(dir_path IN LISTS DIRECTORY_LIST)
-	if(IS_DIRECTORY ${dir_path})
-		list(APPEND INCLUDE_DIRS ${dir_path})
-   	endif()
-endforeach()
-
 add_definitions(-DGLEW_NO_GLU)
 
 if (UNIX)
-	#I'm still thinking about using GTK4 or not, for now it's a no
-	#find_package(PkgConfig REQUIRED)
-	#pkg_check_modules(GTK4 REQUIRED gtk4)
-
-	#include_directories(${GTK4_INCLUDE_DIRS})
-	#link_directories(${GTK4_LIBRARY_DIRS})
+	link_directories(${CMAKE_SOURCE_DIR}/Linking/linux/physx)
 endif()
 
 add_executable(ECS_Engine ${GLOBAL_SOURCES} ${GLOBAL_HEADERS})
@@ -59,7 +47,6 @@ add_executable(ECS_Engine ${GLOBAL_SOURCES} ${GLOBAL_HEADERS})
 if(UNIX)	
 	find_library(UUID_LIBRARIES NAMES uuid)
 	target_link_libraries(ECS_Engine PRIVATE ${UUID_LIBRARIES})
-	#target_link_libraries(ECS_Engine PRIVATE ${GTK4_LIBRARIES})
 endif()
 
 set(LIBRARY_FILES "")
@@ -80,3 +67,15 @@ elseif(UNIX)
 	target_link_libraries(ECS_Engine PRIVATE ${lib_file})
 endif()
 endforeach()
+
+target_link_libraries(ECS_Engine
+	PRIVATE
+	PhysXExtensions_static_64
+    PhysX_static_64
+    PhysXPvdSDK_static_64
+    PhysXCommon_static_64
+    PhysXFoundation_static_64
+	
+    pthread
+    dl
+)

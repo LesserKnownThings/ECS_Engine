@@ -3,23 +3,24 @@
 #include "BuildMacros.h"
 #include "Object.h"
 #include "Systems/AssetManager/LazyAssetPtr.h"
+#include "Systems/Physics/Rect2D.h"
 
 #include <vector>
 
 namespace LKT
 {
 	class Asset;
+	class Camera;
 
 	class World : public Object
 	{
 	public:
-		World();
-		void GiveAsset(LazyAssetPtr<Asset> &strongRefAsset);
+		virtual ~World();
 
-	private:
-		void Render();
-		void Process(float deltaTime);
+		virtual void Initialize();
+		virtual void Uninitialize();
 
-		std::vector<LazyAssetPtr<Asset>> assets;
+	protected:
+		Camera *camera = nullptr;
 	};
 }

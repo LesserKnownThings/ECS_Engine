@@ -99,7 +99,7 @@ namespace LKT
 
 	void ParticleEmitter::GPUInitialize()
 	{
-		CreateComputerBuffers();
+		CreateComputeBuffers();
 	}
 
 	void ParticleEmitter::CPUInitialize()
@@ -108,7 +108,7 @@ namespace LKT
 		SetupCPUVertexBuffers();
 	}
 
-	void ParticleEmitter::CreateComputerBuffers()
+	void ParticleEmitter::CreateComputeBuffers()
 	{
 		CreateGPUParticles(
 			[this](ParticleData *pd, ParticleInitialData *pid)

@@ -3,7 +3,9 @@
         {
             "name": "Linux",
             "includePath": [
-                "${workspaceFolder}/**",
+                "${workspaceFolder}/ECS_Engine/Source/**",
+                "${workspaceFolder}/Include/**",
+                "${workspaceFolder}/Include/physx",
                 "/usr/include/gtk-4.0",
                 "/usr/include/pango-1.0",
                 "/usr/include/glib-2.0",

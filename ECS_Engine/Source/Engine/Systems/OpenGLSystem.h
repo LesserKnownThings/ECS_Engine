@@ -5,7 +5,8 @@
 
 #include "Delegate.h"
 #include "Entity.h"
-#include "RenderComponent.h"
+#include "Components/RenderComponent.h"
+#include "glm/glm.hpp"
 #include "ResourceManagerSystem.h"
 #include "SDL/SDL_video.h"
 #include "SystemBase.h"
@@ -21,6 +22,7 @@ namespace LKT
 	class Camera;
 	class ParticleSystem;
 
+	struct Entity;
 	struct MeshData;
 
 	class OpenGLSystem : public SystemBase
@@ -36,8 +38,11 @@ namespace LKT
 
 		void Render();
 
-		uint32_t CreateComponent(const Entity &e, void *componentData) override;
-		void CreateComponents(int32_t entityCount, Entity *entities, void *componentData) override;
+		void CreateComponents(int32_t entityCount,
+							  Entity *entities,
+							  const std::type_index &type,
+							  void *commonData,
+							  void *componentData) override;
 
 		void ResetViewportAndScissor();
 
@@ -46,6 +51,9 @@ namespace LKT
 
 		static void GetRenderComponentObject(const MeshData &meshData, RenderComponentObject &rco);
 		static void UnloadRenderComponentObject(RenderComponentObject &rco);
+
+		static Camera *RequestCamera(const glm::vec3 &initialPos = glm::vec3(0.0f));
+		static float GetAspectRation();
 
 		void SetComponentMesh(const std::string &meshPath, const Entity &e);
 
@@ -56,6 +64,9 @@ namespace LKT
 		void PreRenderUI();
 		void PostRenderUI();
 		void PostRender();
+
+		void HandleEntityRemoved(const Entity &e);
+		void DestroyComponent(uint32_t c);
 
 		void HandlePostShaderCompile();
 

@@ -1,7 +1,7 @@
 #pragma once
 
+#include "Components/RenderComponent.h"
 #include "Systems/AssetManager/Asset.h"
-#include "Systems/RenderComponent.h"
 
 #include <string>
 

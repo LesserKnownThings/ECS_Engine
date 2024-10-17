@@ -1,7 +1,7 @@
 #include "MeshAssetViewer.h"
 #include "Assets/Mesh.h"
 #include "glew/glew.h"
-#include "Systems/RenderComponent.h"
+#include "Components/RenderComponent.h"
 #include "Systems/Rendering/RenderBufferObject.h"
 #include "Systems/ShaderSystem/ShaderManager.h"
 

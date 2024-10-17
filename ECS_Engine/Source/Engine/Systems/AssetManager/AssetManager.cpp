@@ -37,6 +37,18 @@ namespace LKT
 		return false;
 	}
 
+	bool AssetManager::GetAsset(const AssetPath &path, LazyAssetPtr<Asset> &outAsset)
+	{
+		const AssetManager &instance = AssetManager::Get();
+		const auto it = instance.assets.find(path);
+		if (it != instance.assets.end())
+		{
+			outAsset = it->second.asset;
+			return true;
+		}
+		return false;
+	}
+
 	Asset *AssetManager::LoadAsset(const AssetPath &path)
 	{
 		const AssetManager &instance = AssetManager::Get();

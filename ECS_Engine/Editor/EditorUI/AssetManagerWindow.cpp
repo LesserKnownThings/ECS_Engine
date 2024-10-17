@@ -90,6 +90,11 @@ namespace LKT
             ImGui::TableSetupColumn("FileBrowser", ImGuiTableColumnFlags_None);
             ImGui::TableNextRow();
 
+            if (!fs::exists(defaultDirectory))
+            {
+                fs::create_directory(defaultDirectory);
+            }
+
             ImGui::TableSetColumnIndex(0);
             const fs::path defaultDirectoryPath{defaultDirectory};
 

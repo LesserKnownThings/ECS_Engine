@@ -40,6 +40,9 @@ namespace LKT
 
 		void Present();
 
+		const glm::vec3 &GetPosition() const { return position; }
+		const float &GetOrthographicSize() const { return ortographicSize; }
+
 		const glm::vec3 &GetRightVector() const { return right; }
 		const glm::mat4 &GetView() const { return view; }
 		const glm::mat4 &GetProjection() const { return projection; }

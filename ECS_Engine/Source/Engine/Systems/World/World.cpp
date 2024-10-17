@@ -1,21 +1,20 @@
 #include "World.h"
+#include "Camera.h"
+#include "Systems/OpenGLSystem.h"
 
 namespace LKT
 {
-    void World::GiveAsset(LazyAssetPtr<Asset> &strongRefAsset)
+    World::~World()
     {
-        assets.push_back(std::move(strongRefAsset));
+        delete camera;
     }
 
-    World::World()
+    void World::Initialize()
     {
+        camera = OpenGLSystem::RequestCamera(glm::vec3(0.f, 0.f, 30.0f));       
     }
 
-    void World::Render()
-    {
-    }
-
-    void World::Process(float deltaTime)
+    void World::Uninitialize()
     {
     }
 }

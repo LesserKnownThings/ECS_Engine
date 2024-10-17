@@ -94,7 +94,7 @@ namespace LKT
 		void GPUInitialize();
 		void CPUInitialize();
 
-		void CreateComputerBuffers();
+		void CreateComputeBuffers();
 
 		void SetupCPUVertexBuffers();
 
